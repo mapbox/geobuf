@@ -15,6 +15,16 @@ var feat = {
     }
 };
 
+var featLine = {
+    type: 'Feature',
+    geometry: {
+        type: 'LineString',
+        coordinates: [[0, 0], [10, 10], [20, 10]]
+    },
+    properties: {
+    }
+};
+
 test('proto', function(t) {
     t.doesNotThrow(function() {
         var builder = geobuf.builder();
@@ -29,7 +39,6 @@ test('featureToGeobuf', function(t) {
     t.end();
 });
 
-
 test('featureToGeobuf - throws', function(t) {
     t.throws(function() {
         geobuf.featureToGeobuf(_.extend({}, feat, {type:'huh'}));
@@ -41,6 +50,7 @@ test('featureToGeobuf - throws', function(t) {
 });
 
 test('geobufToFeature', function(t) {
-    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(feat)), feat);
+    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(feat)), feat, 'point');
+    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(featLine)), featLine, 'linestring');
     t.end();
 });

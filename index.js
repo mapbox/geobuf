@@ -43,6 +43,12 @@ function featureToGeobuf(geojson) {
         for (var i = 0; i < geojson.geometry.coordinates.length; i++) {
             coordArray.add('coords', geojson.geometry.coordinates[i]);
         }
+    } else if (geojson.geometry.type === 'LineString') {
+        for (var i = 0; i < geojson.geometry.coordinates.length; i++) {
+            for (var j = 0; j < geojson.geometry.coordinates[i].length; j++) {
+                coordArray.add('coords', geojson.geometry.coordinates[i][j]);
+            }
+        }
     }
 
     var propBuild = b.build('property');
@@ -100,8 +106,19 @@ function geobufToFeature(buf) {
     geojson.geometry.type = geotypeMap[geometryTypes[feature.geometries[0].type]];
     var arr = feature.geometries[0].coord_array[0];
     geojson.geometry.coordinates = [];
-    for (i = 0; i < arr.coords.length; i++) {
-        geojson.geometry.coordinates.push(arr.coords[i].toNumber());
+    if (geojson.geometry.type === 'Point') {
+        for (i = 0; i < arr.coords.length; i++) {
+            geojson.geometry.coordinates.push(arr.coords[i].toNumber());
+        }
+    } else if (geojson.geometry.type === 'LineString') {
+        var coord = [];
+        for (i = 0; i < arr.coords.length; i++) {
+            coord.push(arr.coords[i].toNumber());
+            if (coord.length === 2) {
+                geojson.geometry.coordinates.push(coord);
+                coord = [];
+            }
+        }
     }
     return geojson;
 }
