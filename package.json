@@ -26,6 +26,7 @@
     "tap": "~0.4.11"
   },
   "dependencies": {
-    "protobufjs": "~3.0.0"
+    "protobufjs": "~3.0.0",
+    "underscore": "~1.6.0"
   }
 }
