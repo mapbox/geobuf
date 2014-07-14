@@ -24,5 +24,8 @@
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
     "tap": "~0.4.11"
+  },
+  "dependencies": {
+    "protobufjs": "~3.0.0"
   }
 }

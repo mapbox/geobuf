@@ -1,5 +1,7 @@
 # geobuf
 
+[![build status](https://secure.travis-ci.org/mapbox/geobuf.png)](http://travis-ci.org/mapbox/geobuf)
+
 A compact encoding for geographic data.
 
 Like [vector-tile-spec](https://github.com/mapbox/vector-tile-spec),

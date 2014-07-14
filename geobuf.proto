@@ -45,7 +45,6 @@ message object {
         repeated property properties = 3;
     }
 
-    required string type = 1;
     repeated feature features = 2;
     repeated geometry geometries = 3;
 }
