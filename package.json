@@ -1,0 +1,28 @@
+{
+  "name": "geobuf",
+  "version": "0.0.0",
+  "description": "geographic compact binary encoding specification",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mapbox/geobuf.git"
+  },
+  "keywords": [
+    "geographic",
+    "data",
+    "buffer",
+    "protobuf"
+  ],
+  "author": "Tom MacWright",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mapbox/geobuf/issues"
+  },
+  "homepage": "https://github.com/mapbox/geobuf",
+  "devDependencies": {
+    "tap": "~0.4.11"
+  }
+}

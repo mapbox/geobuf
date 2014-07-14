@@ -1,0 +1,51 @@
+option optimize_for = LITE_RUNTIME;
+
+message object {
+
+    message value {
+        optional string string_value = 1;
+        optional float float_value = 2;
+        optional double double_value = 3;
+        optional int64 int_value = 4;
+        optional uint64 uint_value = 5;
+        optional sint64 sint_value = 6;
+        optional bool bool_value = 7;
+    }
+
+    message coord_array {
+        repeated int64 coords = 1 [packed=true];
+    }
+
+    message multi_array {
+        repeated coord_array arrays = 1;
+    }
+
+    message geometry {
+        required Type type = 1;
+        repeated coord_array coord_array = 3;
+        repeated multi_array multi_array = 4;
+    }
+
+    enum Type {
+        POINT           = 0;
+        MULTIPOINT      = 1;
+        LINESTRING      = 2;
+        MULTILINESTRING = 3;
+        POLYGON         = 4;
+        MULTIPOLYGON    = 5;
+    }
+
+    message property {
+        required string key = 1;
+        optional value value = 2;
+    }
+
+    message feature {
+        repeated geometry geometries = 2;
+        repeated property properties = 3;
+    }
+
+    required string type = 1;
+    repeated feature features = 2;
+    repeated geometry geometries = 3;
+}
