@@ -18,3 +18,11 @@ Given a GeoJSON Feature as an object, return a Buffer of geobuf.
 ### `geobufToFeature(buf)`
 
 Given a Buffer of geobuf, return a GeoJSON Feature as an object.
+
+## See Also
+
+* [geojsonp](https://github.com/springmeyer/geojsonp) - the base for this project,
+  this is more or less geojsonp with more wheelies.
+* [twkb](https://github.com/nicklasaven/TWKB)
+* [vector-tile-spec](https://github.com/mapbox/vector-tile-spec)
+* [topojson](https://github.com/mbostock/topojson)
