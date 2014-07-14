@@ -1,4 +1,5 @@
 var geobuf = require('../'),
+    _ = require('underscore'),
     test = require('tap').test;
 
 var feat = {
@@ -9,7 +10,8 @@ var feat = {
     },
     properties: {
         name: 'Hello world',
-        b: 2
+        b: 2,
+        thing: true
     }
 };
 
@@ -24,6 +26,17 @@ test('proto', function(t) {
 test('featureToGeobuf', function(t) {
     var buf = geobuf.featureToGeobuf(feat);
     t.ok(buf, 'encodes a message');
+    t.end();
+});
+
+
+test('featureToGeobuf - throws', function(t) {
+    t.throws(function() {
+        geobuf.featureToGeobuf(_.extend({}, feat, {type:'huh'}));
+    });
+    t.throws(function() {
+        geobuf.featureToGeobuf(_.extend({}, feat, {geometry:{type:'huh'}}));
+    });
     t.end();
 });
 

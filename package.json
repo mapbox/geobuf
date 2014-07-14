@@ -4,7 +4,8 @@
   "description": "geographic compact binary encoding specification",
   "main": "index.js",
   "scripts": {
-    "test": "tap test/*.js"
+    "test": "tap test/*.js",
+    "cov": "istanbul cover test/*.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,9 @@
   },
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
-    "tap": "~0.4.11"
+    "tap": "~0.4.11",
+    "istanbul": "~0.3.0",
+    "coveralls": "~2.11.1"
   },
   "dependencies": {
     "protobufjs": "~3.0.0",
