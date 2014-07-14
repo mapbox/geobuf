@@ -8,3 +8,20 @@ test('proto', function(t) {
     }, 'can be constructed');
     t.end();
 })
+
+test('featureToGeobuf', function(t) {
+    var buf = geobuf.featureToGeobuf({
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: [0, 0]
+        },
+        properties: {
+            name: 'Hello world'
+        }
+    });
+
+    t.ok(buf, 'encodes a message');
+
+    t.end();
+});
