@@ -1,5 +1,6 @@
 var geobuf = require('../'),
     _ = require('underscore'),
+    geojsonFixtures = require('geojson-fixtures'),
     test = require('tap').test;
 
 var feat = {
@@ -12,49 +13,6 @@ var feat = {
         name: 'Hello world',
         b: 2,
         thing: true
-    }
-};
-
-var featLine = {
-    type: 'Feature',
-    geometry: {
-        type: 'LineString',
-        coordinates: [[0, 0], [10, 10], [20, 10]]
-    },
-    properties: {
-    }
-};
-
-var featMultiLine = {
-    type: 'Feature',
-    geometry:   { "type": "MultiLineString",
-    "coordinates": [
-        [ [100.0, 0.0], [101.0, 1.0] ],
-        [ [102.0, 2.0], [103.0, 3.0] ]
-      ]
-    },
-    properties: {
-    }
-};
-
-var featPolygon = {
-    type: 'Feature',
-    geometry: { type: "Polygon",
-        coordinates: [[
-            [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-        ]
-    },
-    properties: {
-    }
-};
-
-var featMultiPoint = {
-    type: 'Feature',
-    geometry: {
-        type: 'MultiPoint',
-        coordinates: [[0, 0], [10, 10], [20, 10]]
-    },
-    properties: {
     }
 };
 
@@ -83,10 +41,9 @@ test('featureToGeobuf - throws', function(t) {
 });
 
 test('geobufToFeature', function(t) {
-    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(feat)), feat, 'point');
-    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(featLine)), featLine, 'linestring');
-    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(featMultiPoint)), featMultiPoint, 'multipoint');
-    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(featPolygon)), featPolygon, 'polygon');
-    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(featMultiLine)), featMultiLine, 'multilinestring');
+    for (var k in geojsonFixtures.geometry) {
+        var ex = _.extend({}, feat, { geometry: geojsonFixtures.geometry[k] });
+        t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(ex)), ex, k);
+    }
     t.end();
 });
