@@ -30,6 +30,8 @@ function featureToGeobuf(geojson) {
 
     var b = builder();
     var feature = new (b.build('feature'))();
+    var Property = b.build('property');
+    var Value = b.build('value');
 
     addGeometry(geojson.geometry);
 
@@ -95,11 +97,9 @@ function featureToGeobuf(geojson) {
         feature.add('geometries', geometry);
     }
 
-    var propBuild = b.build('property');
-    var valueBuild = b.build('value');
     for (var k in geojson.properties) {
-        var p = new propBuild(),
-            val = new valueBuild(),
+        var p = new Property(),
+            val = new Value(),
             v = geojson.properties[k];
 
         p.set('key', k);
@@ -111,10 +111,7 @@ function featureToGeobuf(geojson) {
                 val.set('bool_value',  v);
                 break;
             case 'string':
-                val.set('string_value',  (v || '').toString());
-                break;
-            default:
-                val.set('string_value',  (v || '').toString());
+                val.set('string_value',  v.toString());
                 break;
         }
 
