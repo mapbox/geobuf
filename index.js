@@ -48,16 +48,18 @@ function featureToGeobuf(geojson) {
         geometry.type = geometryTypes[geotypeMapRev[inputGeom.type]];
 
         var i, j, k, l, coordArray, multiArray;
+        var CoordArray = b.build('coord_array');
+        var MultiArray = b.build('multi_array');
 
         if (inputGeom.type === 'Point') {
-            coordArray = new (b.build('coord_array'))();
+            coordArray = new CoordArray();
             for (i = 0; i < inputGeom.coordinates.length; i++) {
                 coordArray.add('coords', inputGeom.coordinates[i] * 1e6);
             }
             geometry.add('coord_array', coordArray);
         } else if (inputGeom.type === 'LineString' ||
                 inputGeom.type === 'MultiPoint') {
-            coordArray = new (b.build('coord_array'))();
+            coordArray = new CoordArray();
             for (i = 0; i < inputGeom.coordinates.length; i++) {
                 for (j = 0; j < inputGeom.coordinates[i].length; j++) {
                     coordArray.add('coords', inputGeom.coordinates[i][j] * 1e6);
@@ -67,7 +69,7 @@ function featureToGeobuf(geojson) {
         } else if (inputGeom.type === 'Polygon' ||
                   inputGeom.type === 'MultiLineString') {
             for (i = 0; i < inputGeom.coordinates.length; i++) {
-                coordArray = new (b.build('coord_array'))();
+                coordArray = new CoordArray();
                 for (j = 0; j < inputGeom.coordinates[i].length; j++) {
                     for (k = 0; k < inputGeom.coordinates[i][j].length; k++) {
                         coordArray.add('coords', inputGeom.coordinates[i][j][k] * 1e6);
@@ -77,9 +79,9 @@ function featureToGeobuf(geojson) {
             }
         } else if (inputGeom.type === 'MultiPolygon') {
             for (i = 0; i < inputGeom.coordinates.length; i++) {
-                multiArray = new (b.build('multi_array'))();
+                multiArray = new MultiArray();
                 for (j = 0; j < inputGeom.coordinates[i].length; j++) {
-                    coordArray = new (b.build('coord_array'))();
+                    coordArray = new CoordArray();
                     for (k = 0; k < inputGeom.coordinates[i][j].length; k++) {
                         for (l = 0; l < inputGeom.coordinates[i][j][k].length; l++) {
                             coordArray.add('coords', inputGeom.coordinates[i][j][k][l] * 1e6);
@@ -204,8 +206,8 @@ function geobufToFeature(buf) {
                             coord = [];
                         }
                     }
+                    mca.push(ca);
                 }
-                mca.push(ca);
                 outputGeom.coordinates.push(mca);
             }
         }
