@@ -5,7 +5,8 @@
   "main": "index.js",
   "bin": {
     "geobuf2geojson": "bin/geobuf2geojson",
-    "geojson2geobuf": "bin/geojson2geobuf"
+    "geojson2geobuf": "bin/geojson2geobuf",
+    "shp2geobuf": "bin/shp2geobuf"
   },
   "scripts": {
     "test": "tap test/*.js",
