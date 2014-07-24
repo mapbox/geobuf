@@ -11,6 +11,11 @@ Unlike vector-tile-spec, this deals with untiled data in native projections.
 
 ## API
 
+### `featureCollectionToGeobuf(geojson)`
+
+Given a GeoJSON FeatureCollection as an object, return a Buffer of
+geobuf as a [ProtoBufjs](https://github.com/dcodeIO/ProtoBuf.js) object.
+
 ### `featureToGeobuf(geojson)`
 
 Given a GeoJSON Feature as an object, return a Buffer of
@@ -19,6 +24,20 @@ geobuf as a [ProtoBufjs](https://github.com/dcodeIO/ProtoBuf.js) object.
 ### `geobufToFeature(buf)`
 
 Given a Buffer of geobuf, return a GeoJSON Feature as an object.
+
+### `geobufToFeatureCollection(buf)`
+
+Given a Buffer of geobuf, return a GeoJSON FeatureCollection as an object.
+
+## Binaries
+
+    npm install -g geobuf
+
+Installs these nifty binaries:
+
+* `geobuf2geojson`: turn geobuf from stdin to geojson on stdout
+* `geojson2geobuf`: turn geojson from stdin to geobuf on stdout
+* `shp2geobuf`: given a shapefile filename, send geobuf on stdout
 
 ## See Also
 
