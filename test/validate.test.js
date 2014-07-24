@@ -43,7 +43,15 @@ test('featureToGeobuf - throws', function(t) {
 test('geobufToFeature', function(t) {
     for (var k in geojsonFixtures.geometry) {
         var ex = _.extend({}, feat, { geometry: geojsonFixtures.geometry[k] });
-        t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(ex)), ex, k);
+        t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(ex).encode()), ex, k);
+    }
+    t.end();
+});
+
+test('featurecollection', function(t) {
+    for (var k in geojsonFixtures.featurecollection) {
+        var ex = geojsonFixtures.featurecollection[k];
+        t.ok(geobuf.featureCollectionToGeobuf(ex).encode(), k);
     }
     t.end();
 });

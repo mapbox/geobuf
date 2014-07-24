@@ -5,7 +5,9 @@ var ProtoBuf = require('protobufjs'),
 
 module.exports.builder = builder;
 module.exports.featureToGeobuf = featureToGeobuf;
+module.exports.featureCollectionToGeobuf = featureCollectionToGeobuf;
 module.exports.geobufToFeature = geobufToFeature;
+module.exports.geobufToFeatureCollection = geobufToFeatureCollection;
 
 function builder() {
     var b = ProtoBuf.loadProtoFile(__dirname + '/geobuf.proto');
@@ -23,12 +25,33 @@ var geotypeMap = {
 
 var geotypeMapRev = _.invert(geotypeMap);
 
+function featureCollectionToGeobuf(geojson) {
+    assert.equal(geojson.type, 'FeatureCollection');
+
+    var b = builder();
+    var featurecollection = new (b.build('featurecollection'))();
+
+    geojson.features.forEach(function(feature) {
+        featurecollection.add('features', _featureToGeobuf(feature, b));
+    });
+
+    return featurecollection;
+}
+
 function featureToGeobuf(geojson) {
+    assert.equal(geojson.type, 'Feature');
+    return featureCollectionToGeobuf({
+        type: 'FeatureCollection',
+        features: [geojson]
+    });
+}
+
+function _featureToGeobuf(geojson, _builder) {
 
     assert.equal(geojson.type, 'Feature');
     assert.equal(typeof geojson.geometry, 'object');
 
-    var b = builder();
+    var b = _builder || builder();
     var feature = new (b.build('feature'))();
     var Property = b.build('property');
     var Value = b.build('value');
@@ -119,13 +142,30 @@ function featureToGeobuf(geojson) {
         feature.add('properties', p);
     }
 
-    return feature.encode();
+    return feature;
 }
 
 function geobufToFeature(buf) {
+    return geobufToFeatureCollection(buf).features[0];
+}
+
+function geobufToFeatureCollection(buf) {
     var b = builder();
-    var Feature = b.build('feature');
-    var feature = Feature.decode(buf);
+    var FeatureCollection = b.build('featurecollection');
+    var featurecollection = FeatureCollection.decode(buf);
+    var geojson = {
+        type: 'FeatureCollection',
+        features: []
+    };
+
+    for (var i = 0; i < featurecollection.features.length; i++) {
+        geojson.features.push(_geobufToFeature(featurecollection.features[i], b));
+    }
+
+    return geojson;
+}
+
+function _geobufToFeature(feature, b) {
 
     var geojson = {
         type: 'Feature',

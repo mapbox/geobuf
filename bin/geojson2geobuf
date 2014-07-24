@@ -3,5 +3,5 @@
 var geobuf = require('../'),
     rw = require('rw');
 
-var byteBuffer = geobuf.featureToGeobuf(JSON.parse(rw.readFileSync('/dev/stdin')));
-process.stdout.write(byteBuffer.toBuffer());
+var buf = geobuf.featureToGeobuf(JSON.parse(rw.readFileSync('/dev/stdin')));
+process.stdout.write(buf.encode().toBuffer());

@@ -1,8 +1,12 @@
 option optimize_for = LITE_RUNTIME;
 
+message featurecollection {
+    repeated feature features = 1;
+}
+
 message feature {
-    repeated geometry geometries = 2;
-    repeated property properties = 3;
+    repeated geometry geometries = 1;
+    repeated property properties = 2;
 }
 
 message geometry {
