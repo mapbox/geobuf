@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "geographic compact binary encoding specification",
   "main": "index.js",
+  "bin": {
+    "geobuf2geojson": "bin/geobuf2geojson",
+    "geojson2geobuf": "bin/geojson2geobuf"
+  },
   "scripts": {
     "test": "tap test/*.js",
     "cov": "istanbul cover test/*.js"
@@ -31,6 +35,8 @@
   },
   "dependencies": {
     "protobufjs": "~3.0.0",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "rw": "~0.1.4",
+    "shapefile": "~0.3.0"
   }
 }
