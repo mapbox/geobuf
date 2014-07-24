@@ -3,16 +3,18 @@ var ProtoBuf = require('protobufjs'),
     _ = require('underscore'),
     fs = require('fs');
 
-module.exports.builder = builder;
 module.exports.featureToGeobuf = featureToGeobuf;
 module.exports.featureCollectionToGeobuf = featureCollectionToGeobuf;
 module.exports.geobufToFeature = geobufToFeature;
 module.exports.geobufToFeatureCollection = geobufToFeatureCollection;
 
-function builder() {
-    var b = ProtoBuf.loadProtoFile(__dirname + '/geobuf.proto');
-    return b;
-}
+var Builder = ProtoBuf.loadProtoFile(__dirname + '/geobuf.proto');
+var geometryTypes = _.invert(Builder.build('geometry.Type'));
+var CoordArray = Builder.build('coord_array');
+var MultiArray = Builder.build('multi_array');
+var Property = Builder.build('property');
+var Value = Builder.build('value');
+var FeatureCollection = Builder.build('featurecollection');
 
 var geotypeMap = {
     POINT: 'Point',
@@ -28,12 +30,12 @@ var geotypeMapRev = _.invert(geotypeMap);
 function featureCollectionToGeobuf(geojson) {
     assert.equal(geojson.type, 'FeatureCollection');
 
-    var b = builder();
+    var b = Builder;
     var featurecollection = new (b.build('featurecollection'))();
 
-    geojson.features.forEach(function(feature) {
-        featurecollection.add('features', _featureToGeobuf(feature, b));
-    });
+    for (var i = 0; i < geojson.features.length; i++) {
+        featurecollection.add('features', _featureToGeobuf(geojson.features[i]));
+    }
 
     return featurecollection;
 }
@@ -46,23 +48,21 @@ function featureToGeobuf(geojson) {
     });
 }
 
-function _featureToGeobuf(geojson, _builder) {
+function _featureToGeobuf(geojson) {
 
     assert.equal(geojson.type, 'Feature');
     assert.equal(typeof geojson.geometry, 'object');
 
-    var b = _builder || builder();
+    var b = Builder;
     var feature = new (b.build('feature'))();
-    var Property = b.build('property');
-    var Value = b.build('value');
 
     addGeometry(geojson.geometry);
 
     function addGeometry(inputGeom) {
         if (inputGeom.type === 'GeometryCollection') {
-            inputGeom.geometries.forEach(function(g) {
-                addGeometry(g);
-            });
+            for (var k = 0; k < inputGeom.geometries.length; k++) {
+                addGeometry(inputGeom.geometries[k]);
+            }
             return;
         }
         var geometry = new (b.build('geometry'))();
@@ -73,8 +73,6 @@ function _featureToGeobuf(geojson, _builder) {
         geometry.type = geometryTypes[geotypeMapRev[inputGeom.type]];
 
         var i, j, k, l, coordArray, multiArray;
-        var CoordArray = b.build('coord_array');
-        var MultiArray = b.build('multi_array');
 
         if (inputGeom.type === 'Point') {
             coordArray = new CoordArray();
@@ -150,8 +148,7 @@ function geobufToFeature(buf) {
 }
 
 function geobufToFeatureCollection(buf) {
-    var b = builder();
-    var FeatureCollection = b.build('featurecollection');
+    var b = Builder;
     var featurecollection = FeatureCollection.decode(buf);
     var geojson = {
         type: 'FeatureCollection',
@@ -180,7 +177,6 @@ function _geobufToFeature(feature, b) {
     }
 
     var geojsonGeometries = [];
-    var geometryTypes = _.invert(b.build('geometry.Type'));
 
     for (var j = 0; j < feature.geometries.length; j++) {
         geojsonGeometries.push(parseGeometry(feature.geometries[j]));

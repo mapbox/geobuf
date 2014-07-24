@@ -16,14 +16,6 @@ var feat = {
     }
 };
 
-test('proto', function(t) {
-    t.doesNotThrow(function() {
-        var builder = geobuf.builder();
-        t.ok(builder, 'builder is truthy');
-    }, 'can be constructed');
-    t.end();
-})
-
 test('featureToGeobuf', function(t) {
     var buf = geobuf.featureToGeobuf(feat);
     t.ok(buf, 'encodes a message');
