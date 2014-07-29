@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+var geobuf = require('../'),
+    rw = require('rw');
+
+var geojson = JSON.parse(rw.readFileSync('/dev/stdin'));
+
+geojson.features.forEach(function(feature) {
+    feature.properties.geobufsize = geobuf.featureToGeobuf(feature).toBuffer().length;
+});
+
+process.stdout.write(JSON.stringify(geojson));
