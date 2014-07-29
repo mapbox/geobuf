@@ -15,6 +15,9 @@ var MultiArray = Builder.build('multi_array');
 var Property = Builder.build('property');
 var Value = Builder.build('value');
 var FeatureCollection = Builder.build('featurecollection');
+var Feature = Builder.build('feature');
+var Geometry = Builder.build('geometry');
+var GeometryType = Builder.build('geometry.Type');
 
 var geotypeMap = {
     POINT: 'Point',
@@ -31,7 +34,7 @@ function featureCollectionToGeobuf(geojson) {
     assert.equal(geojson.type, 'FeatureCollection');
 
     var b = Builder;
-    var featurecollection = new (b.build('featurecollection'))();
+    var featurecollection = new FeatureCollection();
 
     for (var i = 0; i < geojson.features.length; i++) {
         featurecollection.add('features', _featureToGeobuf(geojson.features[i]));
@@ -54,7 +57,7 @@ function _featureToGeobuf(geojson) {
     assert.equal(typeof geojson.geometry, 'object');
 
     var b = Builder;
-    var feature = new (b.build('feature'))();
+    var feature = new Feature();
 
     addGeometry(geojson.geometry);
 
@@ -65,14 +68,14 @@ function _featureToGeobuf(geojson) {
             }
             return;
         }
-        var geometry = new (b.build('geometry'))();
-        var geometryTypes = b.build('geometry.Type');
+        var geometry = new Geometry();
+        var geometryTypes = GeometryType;
         if (geometryTypes[geotypeMapRev[inputGeom.type]] === undefined) {
             assert.fail('geometry type unknown', inputGeom.type);
         }
         geometry.type = geometryTypes[geotypeMapRev[inputGeom.type]];
 
-        var i, j, k, l, coordArray, multiArray;
+        var i, j, l, coordArray, multiArray;
 
         if (inputGeom.type === 'Point') {
             coordArray = new CoordArray();
