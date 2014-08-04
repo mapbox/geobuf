@@ -35,6 +35,7 @@ test('featureToGeobuf - throws', function(t) {
 test('geobufToFeature', function(t) {
     for (var k in geojsonFixtures.geometry) {
         var ex = _.extend({}, feat, { geometry: geojsonFixtures.geometry[k] });
+        t.comment(k + ': ' + geobuf.featureToGeobuf(ex).encode().toBuffer().length);
         t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(ex).encode()), ex, k);
     }
     t.end();
