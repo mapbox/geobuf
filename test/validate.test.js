@@ -38,6 +38,8 @@ test('geobufToFeature', function(t) {
         t.comment(k + ': ' + geobuf.featureToGeobuf(ex).encode().toBuffer().length);
         t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(ex).encode()), ex, k);
     }
+    var withId = _.extend({id: 'i-can-haz-id'}, feat, { geometry: geojsonFixtures.geometry[k] });
+    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(withId).encode()), withId, k + 'with id');
     t.end();
 });
 
