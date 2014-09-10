@@ -7,6 +7,7 @@ message featurecollection {
 message feature {
     repeated geometry geometries = 1;
     repeated property properties = 2;
+    optional id id = 3;
 }
 
 message geometry {
@@ -28,6 +29,10 @@ message geometry {
 message property {
     required string key = 1;
     optional value value = 2;
+}
+
+message id {
+    required string value = 1;
 }
 
 message value {

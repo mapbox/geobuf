@@ -18,6 +18,7 @@ var FeatureCollection = Builder.build('featurecollection');
 var Feature = Builder.build('feature');
 var Geometry = Builder.build('geometry');
 var GeometryType = Builder.build('geometry.Type');
+var Id = Builder.build('id');
 
 var geotypeMap = {
     POINT: 'Point',
@@ -143,6 +144,12 @@ function _featureToGeobuf(geojson) {
         feature.add('properties', p);
     }
 
+    if (geojson.id) {
+        var id = new Id();
+        id.set('value', geojson.id.toString());
+        feature.set('id', id);
+    }
+
     return feature;
 }
 
@@ -172,6 +179,8 @@ function _geobufToFeature(feature, b) {
         properties: {},
         geometry: {}
     };
+
+    if (feature.id) { geojson.id = feature.id.value }
 
     for (var i = 0; i < feature.properties.length; i++) {
         // inefficient!
