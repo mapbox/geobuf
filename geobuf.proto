@@ -47,6 +47,7 @@ message value {
 
 message coord_array {
     repeated int64 coords = 1 [packed=true];
+    optional bool is_xyz = 2;
 }
 
 message multi_array {
