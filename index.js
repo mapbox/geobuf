@@ -228,9 +228,6 @@ function _geobufToFeature(feature, b) {
         };
         var i, j, l;
 
-        // for backward compatiblity
-        inputGeom.coord_array_xyz = inputGeom.coord_array_xyz || [];
-
         var coordType = inputGeom.coord_array_xyz.length > 0 ? 'coord_array_xyz' : 'coord_array';
         var arr = inputGeom[coordType][0] || inputGeom[coordType][0];
         outputGeom.type = geotypeMap[geometryTypes[inputGeom.type]];
@@ -273,8 +270,6 @@ function _geobufToFeature(feature, b) {
             for (i = 0; i < inputGeom.multi_array.length; i++) {
                 mca = [];
 
-                // for backward compatiblity
-                inputGeom.multi_array[i].arrays_xyz = inputGeom.multi_array[i].arrays_xyz || [];
                 var maCoordType = inputGeom.multi_array[i].arrays_xyz.length > 0 ? 'arrays_xyz' : 'arrays';
                 for (j = 0; j < inputGeom.multi_array[i][maCoordType].length; j++) {
                     ca = [];
