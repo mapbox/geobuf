@@ -32,7 +32,7 @@
     "tap": "~0.4.11",
     "istanbul": "~0.3.0",
     "coveralls": "~2.11.1",
-    "geojson-fixtures": "git+https://github.com/mapbox/geojson-fixtures",
+    "geojson-fixtures": "0.2.0",
     "benchmark": "~1.0.0"
   },
   "dependencies": {

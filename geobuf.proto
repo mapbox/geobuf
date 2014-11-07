@@ -24,7 +24,6 @@ message geometry {
     required Type type = 1;
     repeated coord_array coord_array = 3;
     repeated multi_array multi_array = 4;
-    repeated coord_array_xyz coord_array_xyz = 5;
 }
 
 message property {
@@ -48,13 +47,9 @@ message value {
 
 message coord_array {
     repeated int64 coords = 1 [packed=true];
-}
-
-message coord_array_xyz {
-    repeated int64 coords = 1 [packed=true];
+    optional bool is_xyz = 2;
 }
 
 message multi_array {
     repeated coord_array arrays = 1;
-    repeated coord_array_xyz arrays_xyz = 2;
 }
