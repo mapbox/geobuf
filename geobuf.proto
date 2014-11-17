@@ -36,6 +36,16 @@ message id {
 }
 
 message value {
+    enum Type {
+        bool_value = 0;
+        string_value = 1;
+        float_value = 2;
+        double_value = 3;
+        int_value = 4;
+        uint_value = 5;
+        sint_value = 6;
+    }
+
     optional string string_value = 1;
     optional float float_value = 2;
     optional double double_value = 3;
@@ -43,6 +53,7 @@ message value {
     optional uint64 uint_value = 5;
     optional sint64 sint_value = 6;
     optional bool bool_value = 7;
+    optional Type type = 8 [default=string_value];
 }
 
 message coord_array {

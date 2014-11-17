@@ -4,5 +4,5 @@ var geobuf = require('../'),
     shapefile = require('shapefile');
 
 shapefile.read(process.argv[2], function(err, geojson) {
-    process.stdout.write(geobuf.featureCollectionToGeobuf(geojson).toBuffer());
+    process.stdout.write(geobuf.featureCollectionToGeobuf(geojson));
 });
