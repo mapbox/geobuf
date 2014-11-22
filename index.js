@@ -172,6 +172,10 @@ function _featureToGeobuf(geojson) {
                 value = v.toString();
                 valueType = 'string_value';
                 break;
+            case 'object':
+                value  = JSON.stringify(v);
+                valueType = 'string_value';
+                break;
         }
         property.value[valueType] = value;
         property.value.type = propertyValueType[valueType];
@@ -229,9 +233,19 @@ function _geobufToFeature(feature) {
 
     if (feature.id) { geojson.id = feature.id.value; }
 
+    var valueType, value;
     for (var i = 0; i < feature.properties.length; i++) {
-        var valueType = propertyValueTypeRev[feature.properties[i].value.type];
-        geojson.properties[feature.properties[i].key] = feature.properties[i].value[valueType];
+        valueType = propertyValueTypeRev[feature.properties[i].value.type];
+        value = feature.properties[i].value[valueType];
+        if (valueType == 'string_value'){
+            try {
+                value = JSON.parse(value);
+            }
+            catch(ex)  {
+                //do nothing, leave as string
+            }
+        }
+        geojson.properties[feature.properties[i].key] = value;
     }
 
     var geojsonGeometries = [];

@@ -12,7 +12,8 @@ var feat = {
     properties: {
         name: 'Hello world',
         b: 2,
-        thing: true
+        thing: true,
+        nested: {nope: 'yep'}
     }
 };
 
@@ -46,7 +47,19 @@ test('geobufToFeature', function(t) {
 test('featurecollection', function(t) {
     for (var k in geojsonFixtures.featurecollection) {
         var ex = geojsonFixtures.featurecollection[k];
-        t.ok(geobuf.featureCollectionToGeobuf(ex), k);
+        var buf = geobuf.featureCollectionToGeobuf(ex);
+        t.ok(buf, k);
+
+        var out = geobuf.geobufToFeatureCollection(buf);
+        if (buf.length < 1000){
+            t.deepEqual(out, ex, k);
+        }
+        else {
+            //too many features to do diff if deep compare fails, only test a few
+            for (var i=0; i<Math.min(2, out.features.length); i++){
+                t.deepEqual(out.features[i],  ex.features[i], k + ': feature ' + i);
+            }
+        }
     }
     t.end();
 });
