@@ -47,8 +47,7 @@ Installs these nifty binaries:
   implemented project that does not support topology and uses protobuf as its serialization
 * [vector-tile-spec](https://github.com/mapbox/vector-tile-spec)
 * [topojson](https://github.com/mbostock/topojson) - a variant of GeoJSON
-  that supports topology and delta-encoding. geobuf uses delta encoding
-  by virtue of using protobuf, but does not support topology
+  that supports topology and delta-encoding; geobuf does not support topology and does not yet support delta-encoding
 * [WKT and WKB](https://en.wikipedia.org/wiki/Well-known_text) - popular in databases.
   Not an open standard.
 * [EWKB](http://postgis.refractions.net/docs/using_postgis_dbmanagement.html#EWKB_EWKT) is a popular superset of WKB.
