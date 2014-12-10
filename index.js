@@ -1,4 +1,4 @@
-var ProtoBuf = require('protobufjs'),
+var protobuf = require('protocol-buffers'),
     assert = require('assert'),
     _ = require('underscore'),
     fs = require('fs');
@@ -8,17 +8,21 @@ module.exports.featureCollectionToGeobuf = featureCollectionToGeobuf;
 module.exports.geobufToFeature = geobufToFeature;
 module.exports.geobufToFeatureCollection = geobufToFeatureCollection;
 
-var Builder = ProtoBuf.loadProtoFile(__dirname + '/geobuf.proto');
-var geometryTypes = _.invert(Builder.build('geometry.Type'));
-var CoordArray = Builder.build('coord_array');
-var MultiArray = Builder.build('multi_array');
-var Property = Builder.build('property');
-var Value = Builder.build('value');
-var FeatureCollection = Builder.build('featurecollection');
-var Feature = Builder.build('feature');
-var Geometry = Builder.build('geometry');
-var GeometryType = Builder.build('geometry.Type');
-var Id = Builder.build('id');
+var Builder = protobuf(fs.readFileSync(__dirname + '/geobuf.proto'));
+var geobufJSON = Builder.toJSON();
+var structure = {};
+for (var i=0; i<geobufJSON.messages.length; i++){
+    structure[geobufJSON.messages[i].id] = geobufJSON.messages[i];
+}
+
+function _getEnumByID(enums, id){
+    return _.find(enums, function(e){return e.id == id});
+}
+
+var GeometryType = _getEnumByID(structure.geometry.enums, 'geometry.Type').values;
+var geometryTypes = _.invert(GeometryType);
+var propertyValueType = _getEnumByID(structure.value.enums, 'value.Type').values;
+var propertyValueTypeRev = _.invert(propertyValueType);
 
 var geotypeMap = {
     POINT: 'Point',
@@ -34,14 +38,14 @@ var geotypeMapRev = _.invert(geotypeMap);
 function featureCollectionToGeobuf(geojson) {
     assert.equal(geojson.type, 'FeatureCollection');
 
-    var b = Builder;
-    var featurecollection = new FeatureCollection();
-
+    var featurecollection = {
+        features: []
+    };
+    
     for (var i = 0; i < geojson.features.length; i++) {
-        featurecollection.add('features', _featureToGeobuf(geojson.features[i]));
+        featurecollection.features.push(_featureToGeobuf(geojson.features[i]));
     }
-
-    return featurecollection;
+    return Builder.featurecollection.encode(featurecollection);
 }
 
 function featureToGeobuf(geojson) {
@@ -59,111 +63,127 @@ function is_xyz(coords) {
     return false;
 }
 
+function _coordsToCoordArray(coords){
+    var i,j,
+        xyz = is_xyz(coords);
+    var coordArray = {
+        coords: [],
+        is_xyz: xyz
+    };
+    for (i = 0; i < coords.length; i++) {
+        if (xyz && coords[i].length == 2) coords[i].push(0);
+        for (j = 0; j < coords[i].length; j++) {
+            coordArray.coords.push(coords[i][j] * 1e6);
+        }
+    }
+    return coordArray;
+}
+
 function _featureToGeobuf(geojson) {
 
     assert.equal(geojson.type, 'Feature');
     assert.equal(typeof geojson.geometry, 'object');
 
-    var b = Builder;
-    var feature = new Feature();
+    var feature = {
+        geometries: [],
+        properties: []
+    };
 
     addGeometry(geojson.geometry);
 
     function addGeometry(inputGeom) {
+        var i, j, l, k, coordArray, xzy;
+
         if (inputGeom.type === 'GeometryCollection') {
-            for (var k = 0; k < inputGeom.geometries.length; k++) {
+            for (k = 0; k < inputGeom.geometries.length; k++) {
                 addGeometry(inputGeom.geometries[k]);
             }
             return;
         }
-        var geometry = new Geometry();
         var geometryTypes = GeometryType;
         if (geometryTypes[geotypeMapRev[inputGeom.type]] === undefined) {
             assert.fail('geometry type unknown', inputGeom.type);
         }
-        geometry.type = geometryTypes[geotypeMapRev[inputGeom.type]];
 
-        var i, j, l, k, coordArray, xzy;
+        var geometry = {
+            type: geometryTypes[geotypeMapRev[inputGeom.type]],
+            coord_array: [],
+            multi_array: []
+        };
+
         if (inputGeom.type === 'Point') {
-            coordArray = new CoordArray();
-            coordArray.set('is_xyz', (inputGeom.coordinates.length === 3));
+            coordArray = {
+                coords: [],
+                is_xyz: (inputGeom.coordinates.length === 3)
+            };
             for (i = 0; i < inputGeom.coordinates.length; i++) {
-                coordArray.add('coords', inputGeom.coordinates[i] * 1e6);
+                coordArray.coords.push(inputGeom.coordinates[i] * 1e6);
             }
-            geometry.add('coord_array', coordArray);
+            geometry.coord_array.push(coordArray);
         } else if (inputGeom.type === 'LineString' ||
                 inputGeom.type === 'MultiPoint') {
-            coordArray = new CoordArray();
-            xyz = is_xyz(inputGeom.coordinates);
-            coordArray.set('is_xyz', xyz);
-            for (i = 0; i < inputGeom.coordinates.length; i++) {
-                if (xyz && inputGeom.coordinates[i].length == 2) inputGeom.coordinates[i].push(0);
-                for (j = 0; j < inputGeom.coordinates[i].length; j++) {
-                    coordArray.add('coords', inputGeom.coordinates[i][j] * 1e6);
-                }
-            }
-            geometry.add('coord_array', coordArray);
+            geometry.coord_array.push(_coordsToCoordArray(inputGeom.coordinates));
         } else if (inputGeom.type === 'Polygon' ||
                   inputGeom.type === 'MultiLineString') {
             for (i = 0; i < inputGeom.coordinates.length; i++) {
-                coordArray = new CoordArray();
-                xyz = is_xyz(inputGeom.coordinates[i]);
-                coordArray.set('is_xyz', xyz);
-                for (j = 0; j < inputGeom.coordinates[i].length; j++) {
-                    if (xyz && inputGeom.coordinates[i][j].length == 2) inputGeom.coordinates[i][j].push(0);
-                    for (k = 0; k < inputGeom.coordinates[i][j].length; k++) {
-                        coordArray.add('coords', inputGeom.coordinates[i][j][k] * 1e6);
-                    }
-                }
-                geometry.add('coord_array', coordArray);
+                geometry.coord_array.push(_coordsToCoordArray(inputGeom.coordinates[i]));
             }
         } else if (inputGeom.type === 'MultiPolygon') {
+            var multiArray;
             for (i = 0; i < inputGeom.coordinates.length; i++) {
-                multiArray = new MultiArray();
+                multiArray = {
+                    arrays: []
+                };
                 for (j = 0; j < inputGeom.coordinates[i].length; j++) {
-                    coordArray = new CoordArray();
-                    xyz = is_xyz(inputGeom.coordinates[i][j]);
-                    coordArray.set('is_xyz', xyz);
-                    for (k = 0; k < inputGeom.coordinates[i][j].length; k++) {
-                        if (xyz && (inputGeom.coordinates[i][j][k].length === 2)) inputGeom.coordinates[i][j][k].push(0);
-                        for (l = 0; l < inputGeom.coordinates[i][j][k].length; l++) {
-                            coordArray.add('coords', inputGeom.coordinates[i][j][k][l] * 1e6);
-                        }
-                    }
-                    multiArray.add('arrays', coordArray);
+                    multiArray.arrays.push(_coordsToCoordArray(inputGeom.coordinates[i][j]));
                 }
-                geometry.add('multi_array', multiArray);
+                geometry.multi_array.push(multiArray);
             }
         }
-        feature.add('geometries', geometry);
+        
+        feature.geometries.push(geometry);
     }
 
     for (var k in geojson.properties) {
-        var p = new Property(),
-            val = new Value(),
-            v = geojson.properties[k];
+        var property = {key: k, value: {}},
+            v = geojson.properties[k],
+            value, valueType;
 
-        p.set('key', k);
         switch (typeof v) {
-            case 'number':
-                val.set('float_value',  v);
+            case 'number': 
+                value = v;
+                if (v|0 === v){
+                    if (v > 0) {
+                        valueType = 'uint_value';
+                    }
+                    else {
+                        valueType = 'sint_value';
+                    }
+                }
+                else {
+                    valueType = 'float_value';
+                }
                 break;
             case 'boolean':
-                val.set('bool_value',  v);
+                value = v;
+                valueType = 'bool_value';
                 break;
             case 'string':
-                val.set('string_value',  v.toString());
+                value = v.toString();
+                valueType = 'string_value';
+                break;
+            case 'object':
+                value  = JSON.stringify(v);
+                valueType = 'string_value';
                 break;
         }
-
-        p.set('value', val);
-        feature.add('properties', p);
+        property.value[valueType] = value;
+        property.value.type = propertyValueType[valueType];
+        feature.properties.push(property);
     }
 
     if (geojson.id) {
-        var id = new Id();
-        id.set('value', geojson.id.toString());
-        feature.set('id', id);
+        feature.id = {value: geojson.id};
     }
 
     return feature;
@@ -174,21 +194,36 @@ function geobufToFeature(buf) {
 }
 
 function geobufToFeatureCollection(buf) {
-    var b = Builder;
-    var featurecollection = FeatureCollection.decode(buf);
+    var featurecollection = Builder.featurecollection.decode(buf);
     var geojson = {
         type: 'FeatureCollection',
         features: []
     };
 
     for (var i = 0; i < featurecollection.features.length; i++) {
-        geojson.features.push(_geobufToFeature(featurecollection.features[i], b));
+        geojson.features.push(_geobufToFeature(featurecollection.features[i]));
     }
 
     return geojson;
 }
 
-function _geobufToFeature(feature, b) {
+function _coordArrayToCoords(coordArray, is_xyz){
+    var coords = [],
+        coord = [];
+    for (i = 0; i < coordArray.length; i++) {
+        coord.push(coordArray[i] / 1e6);
+        if (!is_xyz && coord.length === 2) {
+            coords.push(coord);
+            coord = [];
+        } else if (is_xyz && coord.length === 3) {
+            coords.push(coord);
+            coord = [];
+        }
+    }
+    return coords;
+}
+
+function _geobufToFeature(feature) {
 
     var geojson = {
         type: 'Feature',
@@ -198,10 +233,19 @@ function _geobufToFeature(feature, b) {
 
     if (feature.id) { geojson.id = feature.id.value; }
 
+    var valueType, value;
     for (var i = 0; i < feature.properties.length; i++) {
-        // inefficient!
-        geojson.properties[feature.properties[i].key] = _.find(
-            _.values(feature.properties[i].value), truthy);
+        valueType = propertyValueTypeRev[feature.properties[i].value.type];
+        value = feature.properties[i].value[valueType];
+        if (valueType == 'string_value'){
+            try {
+                value = JSON.parse(value);
+            }
+            catch(ex)  {
+                //do nothing, leave as string
+            }
+        }
+        geojson.properties[feature.properties[i].key] = value;
     }
 
     var geojsonGeometries = [];
@@ -229,56 +273,24 @@ function _geobufToFeature(feature, b) {
         outputGeom.type = geotypeMap[geometryTypes[inputGeom.type]];
         if (outputGeom.type === 'Point') {
             for (i = 0; i < arr.coords.length; i++) {
-                outputGeom.coordinates.push(arr.coords[i].toNumber() / 1e6);
+                outputGeom.coordinates.push(arr.coords[i] / 1e6);
             }
         } else if (outputGeom.type === 'LineString' ||
             outputGeom.type === 'MultiPoint') {
-            var coord = [];
-            for (i = 0; i < arr.coords.length; i++) {
-                coord.push(arr.coords[i].toNumber() / 1e6);
-                if (!arr.is_xyz && coord.length === 2) {
-                    outputGeom.coordinates.push(coord);
-                    coord = [];
-                } else if (arr.is_xyz && coord.length === 3) {
-                    outputGeom.coordinates.push(coord);
-                    coord = [];
-                }
-            }
+            outputGeom.coordinates = _coordArrayToCoords(arr.coords, arr.is_xyz);
         } else if (outputGeom.type === 'Polygon' ||
             outputGeom.type === 'MultiLineString') {
-            var coord = [], ca = [];
             for (i = 0; i < inputGeom.coord_array.length; i++) {
-                ca = [];
-                for (j = 0; j < inputGeom.coord_array[i].coords.length; j++) {
-                    coord.push(inputGeom.coord_array[i].coords[j].toNumber() / 1e6);
-                    if (!inputGeom.coord_array[i].is_xyz && coord.length === 2) {
-                        ca.push(coord);
-                        coord = [];
-                    } else if (inputGeom.coord_array[i].is_xyz && coord.length === 3) {
-                        ca.push(coord);
-                        coord = [];
-                    }
-                }
-                outputGeom.coordinates.push(ca);
+                arr = inputGeom.coord_array[i];
+                outputGeom.coordinates.push(_coordArrayToCoords(arr.coords, arr.is_xyz));
             }
         } else if (outputGeom.type === 'MultiPolygon') {
-            var coord = [], ca = [], i, j, k;
+            // var coord = [], ca = [], i, j, k;
             for (i = 0; i < inputGeom.multi_array.length; i++) {
                 mca = [];
-
                 for (j = 0; j < inputGeom.multi_array[i].arrays.length; j++) {
-                    ca = [];
-                    for (k = 0; k < inputGeom.multi_array[i].arrays[j].coords.length; k++) {
-                        coord.push(inputGeom.multi_array[i].arrays[j].coords[k].toNumber() / 1e6);
-                        if (!inputGeom.multi_array[i].arrays[j].is_xyz && coord.length === 2) {
-                            ca.push(coord);
-                            coord = [];
-                        } else if (inputGeom.multi_array[i].arrays[j].is_xyz && coord.length === 3) {
-                            ca.push(coord);
-                            coord = [];
-                        }
-                    }
-                    mca.push(ca);
+                    arr = inputGeom.multi_array[i].arrays[j];
+                    mca.push(_coordArrayToCoords(arr.coords, arr.is_xyz));
                 }
                 outputGeom.coordinates.push(mca);
             }
@@ -288,8 +300,4 @@ function _geobufToFeature(feature, b) {
     }
 
     return geojson;
-}
-
-function truthy(val) {
-    return val !== null;
 }
