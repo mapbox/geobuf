@@ -29,11 +29,12 @@
   },
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
-    "tap": "~0.4.11",
-    "istanbul": "~0.3.0",
+    "benchmark": "~1.0.0",
     "coveralls": "~2.11.1",
     "geojson-fixtures": "0.2.0",
-    "benchmark": "~1.0.0"
+    "istanbul": "~0.3.0",
+    "pbf": "^1.2.0",
+    "tap": "~0.4.11"
   },
   "dependencies": {
     "protobufjs": "~3.0.0",
