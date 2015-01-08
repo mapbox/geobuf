@@ -38,17 +38,20 @@ function readDataField(tag, obj, pbf) {
     else if (tag === 3) e = Math.pow(10, pbf.readVarint());
     else if (tag === 4) {
         obj.type = 'FeatureCollection';
-        obj.features = pbf.readMessage(readFeatureCollectionField, []);
+        obj.features = [];
+        pbf.readMessage(readFeatureCollectionField, obj);
 
     } else if (tag === 5) readFeature(pbf, obj);
     else if (tag === 6) readGeometry(pbf, obj);
     // TODO TopoJSON stuff
-    // TODO custom props
+    else if (tag === 13) values.push(readValue(pbf));
+    else if (tag === 15) readProps(pbf, obj);
 }
 
-function readFeatureCollectionField(tag, features, pbf) {
-    if (tag === 1) features.push(readFeature(pbf, {}));
-    // TODO custom props
+function readFeatureCollectionField(tag, obj, pbf) {
+    if (tag === 1) obj.features.push(readFeature(pbf, {}));
+    else if (tag === 13) values.push(readValue(pbf));
+    else if (tag === 15) readProps(pbf, obj);
 }
 
 function readFeature(pbf, feature) {
@@ -98,8 +101,11 @@ function readGeometryField(tag, geom, pbf) {
     if (tag === 1) geom.type = geometryTypes[pbf.readVarint()];
     else if (tag === 2) lengths = pbf.readPackedVarint();
     else if (tag === 3) geom.coordinates = readCoords(pbf, geom.type);
-    // TODO geometries
-    // TODO custom props
+    else if (tag === 4) {
+        geom.geometries = geom.geometries || [];
+        geom.geometries.push(readGeometry(pbf, {}));
+    } else if (tag === 13) values.push(readValue(pbf));
+    else if (tag === 15) readProps(pbf, geom);
 }
 
 function readCoords(pbf, type) {
