@@ -14,8 +14,9 @@ message Data {
 
     // TopoJSON stuff
     optional Transform transform = 7;
-    repeated uint32 arc_lengths = 8 [packed = true];
-    repeated sint32 arc_coords = 9 [packed = true];
+    repeated Geometry topo_geometries = 8;
+    repeated uint32 arc_lengths = 9 [packed = true];
+    repeated sint32 arc_coords = 10 [packed = true];
 
     repeated Value values = 13; // unique values
     repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties

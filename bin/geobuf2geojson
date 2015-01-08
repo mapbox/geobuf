@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 
-var geobuf = require('../'),
+var decode = require('../decode'),
+	Pbf = require('pbf'),
     rw = require('rw');
 
-var geojson = geobuf.geobufToFeature(rw.readFileSync('/dev/stdin'));
+var data = rw.readFileSync('/dev/stdin');
+
+console.time('decode');
+var geojson = decode(new Pbf(data));
+console.timeEnd('decode');
+
 process.stdout.write(JSON.stringify(geojson));
