@@ -2,7 +2,7 @@
 
 module.exports = encode;
 
-var keys, keysNum, dim, e;
+var keys, keysNum, dim, e, name;
 
 var geometryTypes = {
     'Point': 0,
@@ -34,6 +34,9 @@ function encode(obj, pbf) {
     pbf.writeVarintField(3, precision);
 
     if (obj.type === 'FeatureCollection') pbf.writeMessage(4, writeFeatureCollection, obj);
+    else if (obj.type === 'Feature') pbf.writeMessage(5, writeFeature, obj);
+    else if (obj.type !== 'Topology') pbf.writeMessage(6, writeGeometry, obj);
+
     // TODO other stuff
 
     keys = null;
@@ -112,13 +115,45 @@ function writeFeatureCollection(obj, pbf) {
 
 function writeFeature(feature, pbf) {
     pbf.writeMessage(1, writeGeometry, feature.geometry);
-    // TODO id
+
+    if (feature.id !== undefined) {
+        if (typeof feature.id === 'number' && feature.id % 1 === 0) pbf.writeSVarintField(12, feature.id);
+        else pbf.writeStringField(11, feature.id);
+    }
+
+    writeProps(feature.properties, pbf);
     // TODO custom props
+}
+
+function writeGeometry(geom, pbf) {
+    pbf.writeVarintField(1, geometryTypes[geom.type]);
+
+    if (geom.type === 'Point') writePoint(geom.coordinates, pbf);
+    else if (geom.type === 'MultiPoint' || geom.type === 'LineString') writeLine(geom.coordinates, pbf);
+    if (geom.type === 'MultiLineString' || geom.type === 'Polygon') writeMultiLine(geom.coordinates, pbf);
+    else if (geom.type === 'MultiPolygon') writeMultiPolygon(geom.coordinates, pbf);
+    else if (geom.type === 'GeometryCollection') {
+        for (var i = 0; i < geom.geometries.length; i++) pbf.writeMessage(4, writeGeometry, geom.geometries[i]);
+    }
+
+    if (name) pbf.writeStringField(5, name);
+    name = null;
+
+    if (geom.id !== undefined) {
+        if (typeof geom.id === 'number' && geom.id % 1 === 0) pbf.writeSVarintField(12, geom.id);
+        else pbf.writeStringField(11, geom.id);
+    }
+
+    writeProps(geom.properties, pbf);
+    // TODO custom props
+}
+
+function writeProps(props, pbf) {
     var props = [],
         valueIndex = 0;
 
-    for (var key in feature.properties) {
-        pbf.writeMessage(13, writeValue, feature.properties[key]);
+    for (var key in props) {
+        pbf.writeMessage(13, writeValue, props[key]);
         props.push(keys[key], valueIndex++);
     }
     pbf.writePackedVarint(15, props);
@@ -137,15 +172,16 @@ function writeValue(value, pbf) {
     }
 }
 
-function writeGeometry(geom, pbf) {
-    pbf.writeVarintField(1, geometryTypes[geom.type]);
+function writePoint(point, pbf) {
+    var coords = [];
+    for (i = 0; i < dim; i++) coords.push(Math.round(point[i] * e));
+    pbf.writePackedSVarint(3, coords);
+}
 
-    if (geom.type === 'MultiLineString' || geom.type === 'Polygon') writeMultiLine(geom.coordinates, pbf);
-    else if (geom.type === 'MultiPolygon') writeMultiPolygon(geom.coordinates, pbf);
-
-    // TODO other types
-    // TODO TopoJSON stuff
-    // TODO custom props
+function writeLine(line, pbf) {
+    var coords = [];
+    populateLine(coords, line);
+    pbf.writePackedSVarint(3, coords);
 }
 
 function writeMultiLine(lines, pbf) {

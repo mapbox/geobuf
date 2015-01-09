@@ -6,9 +6,9 @@ var encode = require('../encode'),
 
 var geojson = JSON.parse(rw.readFileSync('/dev/stdin'));
 
-console.time('JSON.stringify');
-JSON.stringify(geojson);
-console.timeEnd('JSON.stringify');
+// console.time('JSON.stringify');
+// JSON.stringify(geojson);
+// console.timeEnd('JSON.stringify');
 
 console.time('encode');
 var buffer = encode(geojson, new Pbf());
