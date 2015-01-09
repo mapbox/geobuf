@@ -11,7 +11,7 @@ JSON.stringify(geojson);
 console.timeEnd('JSON.stringify');
 
 console.time('encode');
-encode(geojson, new Pbf());
+var buffer = encode(geojson, new Pbf());
 console.timeEnd('encode');
 
-// process.stdout.write(buf.encode().toBuffer());
+// process.stdout.write(buffer);
