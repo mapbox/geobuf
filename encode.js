@@ -31,7 +31,7 @@ function encode(obj, pbf) {
 
     var keysArr = Object.keys(keys);
 
-    for (var i = 0; i < keysArr.length; i++) pbf.writeString(1, keysArr[i]);
+    for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
     if (dim !== 2) pbf.writeVarintField(2, dim);
     if (precision !== 6) pbf.writeVarintField(3, precision);
 
@@ -129,7 +129,7 @@ function writeFeature(feature, pbf) {
         else pbf.writeStringField(11, feature.id);
     }
 
-    writeProps(feature.properties, pbf);
+    if (feature.properties) writeProps(feature.properties, pbf);
     // TODO custom props
 }
 
@@ -190,14 +190,14 @@ function writeTopology(topology, pbf) {
 }
 
 function writeProps(props, pbf) {
-    var props = [],
+    var indexes = [],
         valueIndex = 0;
 
     for (var key in props) {
         pbf.writeMessage(13, writeValue, props[key]);
-        props.push(keys[key], valueIndex++);
+        indexes.push(keys[key], valueIndex++);
     }
-    pbf.writePackedVarint(15, props);
+    pbf.writePackedVarint(14, indexes);
 }
 
 function writeValue(value, pbf) {
@@ -208,14 +208,14 @@ function writeValue(value, pbf) {
     else if (type === 'object') pbf.writeStringField(6, JSON.stringify(value));
     else if (type === 'number') {
        if (value % 1 !== 0) pbf.writeDoubleField(2, value);
-       else if (value < 0) pbf.writeSVarintField(3, value);
-       else pbf.writeVarintField(4, value);
+       else if (value >= 0) pbf.writeVarintField(3, value);
+       else pbf.writeVarintField(4, -value);
     }
 }
 
 function writePoint(point, pbf) {
     var coords = [];
-    for (i = 0; i < dim; i++) coords.push(Math.round(point[i] * e));
+    for (var i = 0; i < dim; i++) coords.push(Math.round(point[i] * e));
     pbf.writePackedSVarint(3, coords);
 }
 
