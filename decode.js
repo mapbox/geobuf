@@ -83,9 +83,11 @@ function readGeometryField(tag, geom, pbf) {
     if (tag === 1) geom.type = geometryTypes[pbf.readVarint()];
 
     else if (tag === 2) lengths = pbf.readPackedVarint();
-    else if (tag === 3) geom.coordinates = readCoords(pbf, geom.type);
+    else if (tag === 3) {
+        if (isTopo) geom.arcs = readCoords(pbf, geom.type);
+        else geom.coordinates = readCoords(pbf, geom.type);
 
-    else if (tag === 4) {
+    } else if (tag === 4) {
         geom.geometries = geom.geometries || [];
         geom.geometries.push(readGeometry(pbf, {}));
     }
@@ -153,7 +155,7 @@ function readLinePart(pbf, end, len, isMultiPoint) {
 
     if (isTopo && !isMultiPoint) {
         var p = 0;
-        while (pbf.pos < end && (!len || i < len)) {
+        while (len ? i < len : pbf.pos < end) {
             p += pbf.readSVarint();
             coords.push(p);
             i++;
@@ -163,7 +165,7 @@ function readLinePart(pbf, end, len, isMultiPoint) {
         var prevP = [];
         for (var d = 0; d < dim; d++) prevP[d] = 0;
 
-        while (pbf.pos < end && (!len || i < len)) {
+        while (len ? i < len : pbf.pos < end) {
             var p = [];
             for (var d = 0; d < dim; d++) {
                 prevP[d] += pbf.readSVarint();
