@@ -10,16 +10,8 @@ message Data {
         FeatureCollection feature_collection = 4;
         Feature feature = 5;
         Geometry geometry = 6;
+        Topology topology = 7;
     }
-
-    // TopoJSON stuff
-    optional Transform transform = 7;
-    repeated Geometry topo_geometries = 8;
-    repeated uint32 arc_lengths = 9 [packed = true];
-    repeated sint32 arc_coords = 10 [packed = true];
-
-    repeated Value values = 13; // unique values
-    repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
 
 
     message Feature {
@@ -29,9 +21,9 @@ message Data {
             string id = 11;
             sint32 int_id = 12;
         }
-        repeated Value values = 13;
+        repeated Value values = 13; // unique values
         repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes
-        repeated uint32 custom_properties = 15 [packed = true];
+        repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
     }
 
     message Geometry {
@@ -41,10 +33,7 @@ message Data {
         repeated sint32 coords = 3 [packed = true]; // delta-encoded integer values
         repeated Geometry geometries = 4;
 
-        optional string name = 5; // TopoJSON object name
-
-        // TopoJSON has props/id in Geometry rather than Feature
-        oneof id_type {
+        oneof id_type { // TopoJSON has props/id in Geometry rather than Feature
             string id = 11;
             sint32 int_id = 12;
         }
@@ -55,6 +44,19 @@ message Data {
 
     message FeatureCollection {
         repeated Feature features = 1;
+
+        repeated Value values = 13;
+        repeated uint32 custom_properties = 15 [packed = true];
+    }
+
+    message Topology {
+        optional Transform transform = 1;
+
+        repeated string names = 2;
+        repeated Geometry objects = 3;
+
+        repeated uint32 lengths = 4 [packed = true];
+        repeated sint32 coords = 5 [packed = true]; // arcs coordinates
 
         repeated Value values = 13;
         repeated uint32 custom_properties = 15 [packed = true];
@@ -74,8 +76,8 @@ message Data {
         oneof value_type {
             string string_value = 1;
             double double_value = 2;
-            sint32 int_value = 3;
-            uint32 uint_value = 4;
+            uint32 pos_int_value = 3;
+            uint32 neg_int_value = 4;
             bool bool_value = 5;
             string json_value = 6;
         }

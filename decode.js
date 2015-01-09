@@ -2,7 +2,7 @@
 
 module.exports = decode;
 
-var keys, values, lengths, dim, e, isTopo, transformed, name,
+var keys, values, lengths, dim, e, isTopo, transformed, names,
     geometryTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
                       'Polygon', 'MultiPolygon', 'GeometryCollection'];
 
@@ -28,22 +28,7 @@ function readDataField(tag, obj, pbf) {
     else if (tag === 4) readFeatureCollection(pbf, obj);
     else if (tag === 5) readFeature(pbf, obj);
     else if (tag === 6) readGeometry(pbf, obj);
-
-    else if (tag === 7) {
-        obj.transform = pbf.readMessage(readTransformField, {scale: [], translate: []});
-        transformed = true;
-    }
-    else if (tag === 8) {
-        isTopo = true;
-        var geom = pbf.readMessage(readGeometryField, {});
-        obj.objects = obj.objects || {};
-        obj.objects[name] = geom;
-    }
-    else if (tag === 9) lengths = pbf.readPackedVarint();
-    else if (tag === 10) obj.arcs = readArcs(pbf);
-
-    else if (tag === 13) values.push(readValue(pbf));
-    else if (tag === 15) readProps(pbf, obj);
+    else if (tag === 7) readTopology(pbf, obj);
 }
 
 function readFeatureCollection(pbf, obj) {
@@ -59,6 +44,31 @@ function readFeature(pbf, feature) {
 
 function readGeometry(pbf, geom) {
     return pbf.readMessage(readGeometryField, geom);
+}
+
+function readTopology(pbf, topology) {
+    isTopo = true;
+    topology.type = 'Topology';
+    topology.objects = {};
+    names = [];
+    pbf.readMessage(readTopologyField, topology);
+    names = null;
+    return topology;
+}
+
+function readTopologyField(tag, topology, pbf) {
+    if (tag === 1) {
+        topology.transform = pbf.readMessage(readTransformField, {scale: [], translate: []});
+        transformed = true;
+    }
+    else if (tag === 2) names.push(pbf.readString());
+    else if (tag === 3) topology.objects[names.unshift()] = pbf.readMessage(readGeometryField, {});
+
+    else if (tag === 4) lengths = pbf.readPackedVarint();
+    else if (tag === 5) topology.arcs = readArcs(pbf);
+
+    else if (tag === 13) values.push(readValue(pbf));
+    else if (tag === 15) readProps(pbf, topology);
 }
 
 function readFeatureCollectionField(tag, obj, pbf) {
@@ -92,8 +102,6 @@ function readGeometryField(tag, geom, pbf) {
         geom.geometries.push(readGeometry(pbf, {}));
     }
 
-    else if (tag === 5) name = pbf.readString();
-
     else if (tag === 11) geom.id = pbf.readString();
     else if (tag === 12) geom.id = pbf.readSVarint();
 
@@ -120,8 +128,8 @@ function readValue(pbf) {
 
         if (tag === 1) value = pbf.readString();
         else if (tag === 2) value = pbf.readDouble();
-        else if (tag === 3) value = pbf.readSVarint();
-        else if (tag === 4) value = pbf.readVarint();
+        else if (tag === 3) value = pbf.readVarint();
+        else if (tag === 4) value = -pbf.readVarint();
         else if (tag === 5) value = pbf.readBoolean();
         else if (tag === 6) value = JSON.parse(pbf.readString());
     }
