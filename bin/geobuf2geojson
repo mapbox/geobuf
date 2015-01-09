@@ -6,8 +6,16 @@ var decode = require('../decode'),
 
 var data = rw.readFileSync('/dev/stdin');
 
-console.time('decode');
+// console.time('decode');
 var geojson = decode(new Pbf(data));
-console.timeEnd('decode');
+// console.timeEnd('decode');
 
-process.stdout.write(JSON.stringify(geojson));
+// console.time('stringify');
+var data = JSON.stringify(geojson);
+// console.timeEnd('stringify');
+
+// console.time('JSON.parse');
+// JSON.parse(data);
+// console.timeEnd('JSON.parse');
+
+process.stdout.write(data);

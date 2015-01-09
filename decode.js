@@ -2,8 +2,9 @@
 
 module.exports = decode;
 
-var keys, values, lengths, dim, e, isTopo, transformed, names,
-    geometryTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
+var keys, values, lengths, dim, e, isTopo, transformed, names;
+
+var geometryTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
                       'Polygon', 'MultiPolygon', 'GeometryCollection'];
 
 function decode(pbf) {

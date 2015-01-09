@@ -1,17 +1,21 @@
 #!/usr/bin/env node
 
 var encode = require('../encode'),
-	Pbf = require('pbf'),
+    Pbf = require('pbf'),
     rw = require('rw');
 
-var geojson = JSON.parse(rw.readFileSync('/dev/stdin'));
+var data = rw.readFileSync('/dev/stdin');
+
+// console.time('JSON.parse');
+var geojson = JSON.parse(data);
+// console.timeEnd('JSON.parse');
 
 // console.time('JSON.stringify');
 // JSON.stringify(geojson);
 // console.timeEnd('JSON.stringify');
 
-console.time('encode');
+// console.time('encode');
 var buffer = encode(geojson, new Pbf());
-console.timeEnd('encode');
+// console.timeEnd('encode');
 
-// process.stdout.write(buffer);
+process.stdout.write(buffer);

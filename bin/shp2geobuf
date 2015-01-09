@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-var geobuf = require('../'),
+var encode = require('../encode'),
+	Pbf = require('pbf'),
     shapefile = require('shapefile');
 
 shapefile.read(process.argv[2], function(err, geojson) {
-    process.stdout.write(geobuf.featureCollectionToGeobuf(geojson).toBuffer());
+    process.stdout.write(encode(geojson, new Pbf()));
 });
