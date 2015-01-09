@@ -1,7 +1,7 @@
 {
   "name": "geobuf",
-  "version": "0.2.2",
-  "description": "geographic compact binary encoding specification",
+  "version": "1.0.0",
+  "description": "Compact binary encoding for geographic data",
   "main": "index.js",
   "bin": {
     "geobuf2geojson": "bin/geobuf2geojson",
@@ -20,9 +20,12 @@
     "geographic",
     "data",
     "buffer",
-    "protobuf"
+    "protobuf",
+    "format",
+    "compression",
+    "geojson",
+    "topojson"
   ],
-  "author": "Tom MacWright",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/mapbox/geobuf/issues"
@@ -30,15 +33,13 @@
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
     "benchmark": "~1.0.0",
-    "coveralls": "~2.11.1",
+    "coveralls": "~2.11.2",
     "geojson-fixtures": "0.2.0",
-    "istanbul": "~0.3.0",
-    "pbf": "^1.2.0",
-    "tap": "~0.4.11"
+    "istanbul": "~0.3.5",
+    "tap": "~0.4.13"
   },
   "dependencies": {
-    "protobufjs": "~3.0.0",
-    "underscore": "~1.6.0",
+    "pbf": "^1.2.0",
     "rw": "~0.1.4",
     "shapefile": "~0.3.0"
   }
