@@ -1,6 +1,7 @@
 # Geobuf
 
-[![build status](https://secure.travis-ci.org/mapbox/geobuf.png)](http://travis-ci.org/mapbox/geobuf)
+[![Build Status](https://travis-ci.org/mapbox/geobuf.svg)](https://travis-ci.org/mapbox/geobuf)
+[![Coverage Status](https://img.shields.io/coveralls/mapbox/geobuf.svg)](https://coveralls.io/r/mapbox/geobuf)
 
 Geobuf is a compact binary encoding for geographic data.
 
