@@ -21,5 +21,5 @@ function roundtripTest(geojson) {
     return function (t) {
         t.same(geobuf.decode(new Pbf(geobuf.encode(geojson, new Pbf()))), geojson);
         t.end();
-    }
+    };
 }

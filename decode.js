@@ -159,10 +159,11 @@ function readPoint(pbf) {
 
 function readLinePart(pbf, end, len, isMultiPoint) {
     var i = 0,
-        coords = [];
+        coords = [],
+        p, d;
 
     if (isTopo && !isMultiPoint) {
-        var p = 0;
+        p = 0;
         while (len ? i < len : pbf.pos < end) {
             p += pbf.readSVarint();
             coords.push(p);
@@ -171,11 +172,11 @@ function readLinePart(pbf, end, len, isMultiPoint) {
 
     } else {
         var prevP = [];
-        for (var d = 0; d < dim; d++) prevP[d] = 0;
+        for (d = 0; d < dim; d++) prevP[d] = 0;
 
         while (len ? i < len : pbf.pos < end) {
-            var p = [];
-            for (var d = 0; d < dim; d++) {
+            p = [];
+            for (d = 0; d < dim; d++) {
                 prevP[d] += pbf.readSVarint();
                 p[d] = transformCoord(prevP[d]);
             }
@@ -225,7 +226,7 @@ function readArcs(pbf) {
         var ring = [];
         for (var j = 0; j < lengths[i]; j++) {
             var p = [];
-            for (var d = 0; d < dim; d++) p[d] = transformCoord(pbf.readSVarint());
+            for (var d = 0; d < dim && pbf.pos < end; d++) p[d] = transformCoord(pbf.readSVarint());
             ring.push(p);
         }
         lines.push(ring);

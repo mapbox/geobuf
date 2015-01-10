@@ -224,38 +224,40 @@ function writeLine(line, pbf, isMultiPoint) {
 }
 
 function writeMultiLine(lines, pbf) {
-    var len = lines.length;
+    var len = lines.length,
+        i;
     if (len !== 1) {
         var lengths = [];
-        for (var i = 0; i < len; i++) lengths.push(lines[i].length);
+        for (i = 0; i < len; i++) lengths.push(lines[i].length);
         pbf.writePackedVarint(2, lengths);
         // TODO faster with custom writeMessage?
     }
     var coords = [];
-    for (var i = 0; i < len; i++) populateLine(coords, lines[i]);
+    for (i = 0; i < len; i++) populateLine(coords, lines[i]);
     pbf.writePackedSVarint(3, coords);
 }
 
 function writeMultiPolygon(polygons, pbf) {
-    var len = polygons.length;
+    var len = polygons.length,
+        i, j;
     if (len !== 1 || polygons[0].length !== 1 || polygons[0][0].length !== 1) {
         var lengths = [len];
-        for (var i = 0; i < len; i++) {
+        for (i = 0; i < len; i++) {
             lengths.push(polygons[i].length);
-            for (var j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length);
+            for (j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length);
         }
         pbf.writePackedVarint(2, lengths);
     }
 
     var coords = [];
-    for (var i = 0; i < len; i++) {
-        for (var j = 0; j < polygons[i].length; j++) populateLine(coords, polygons[i][j]);
+    for (i = 0; i < len; i++) {
+        for (j = 0; j < polygons[i].length; j++) populateLine(coords, polygons[i][j]);
     }
     pbf.writePackedSVarint(3, coords);
 }
 
 function populateLine(coords, line, isMultiPoint) {
-    var i, j, p;
+    var i, j;
     for (i = 0; i < line.length; i++) {
         if (isTopo && !isMultiPoint) coords.push(i ? line[i] - line[i - 1] : line[i]);
         else for (j = 0; j < dim; j++) coords.push(transformCoord(line[i][j] - (i ? line[i - 1][j] : 0)));
