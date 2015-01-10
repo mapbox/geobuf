@@ -4,12 +4,14 @@
     "scale": [0.0005000500050005, 0.00010001000100010001],
     "translate": [100, 0]
   },
+  "foo": "bar",
   "objects": {
     "example": {
       "type": "GeometryCollection",
       "geometries": [
         {
           "type": "Point",
+          "id": 123,
           "properties": {
             "prop0": "value0"
           },
@@ -33,6 +35,10 @@
             }
           },
           "arcs": [[1]]
+        },
+        {
+          "type": "MultiPolygon",
+          "arcs": [[[1]]]
         }
       ]
     }

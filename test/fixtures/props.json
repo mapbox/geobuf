@@ -1,21 +1,33 @@
 {
-    "type": "Feature",
-    "my_prop_1": {"foo": "bar"},
-    "geometry": {
-        "type": "Point",
-        "coordinates": [100.0, 0.0],
-        "my_prop_2": 123
-    },
-    "properties": {
-        "string": "foo",
-        "int": 5,
-        "float": 123.456,
-        "bool": false,
-        "empty": "",
-        "zero": 0,
-        "complex": {
-            "foo": "bar",
-            "baz": [1, 2, 3]
+    "type": "FeatureCollection",
+    "foo": "bar",
+    "features": [{
+        "type": "Feature",
+        "id": 123,
+        "my_prop_1": {"foo": "bar"},
+        "geometry": {
+            "type": "Point",
+            "coordinates": [100.0, 0.0],
+            "my_prop_2": 123
+        },
+        "properties": {
+            "string": "foo",
+            "int": 5,
+            "float": 123.456,
+            "bool": false,
+            "empty": "",
+            "zero": 0,
+            "complex": {
+                "foo": "bar",
+                "baz": [1, 2, 3]
+            }
         }
-    }
+    }, {
+        "type": "Feature",
+        "id": "foo",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [100.0, 0.0]
+        }
+    }]
 }
