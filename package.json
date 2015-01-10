@@ -4,8 +4,8 @@
   "description": "Compact binary encoding for geographic data",
   "main": "index.js",
   "bin": {
-    "geobuf2geojson": "bin/geobuf2geojson",
-    "geojson2geobuf": "bin/geojson2geobuf",
+    "geobuf2json": "bin/geobuf2json",
+    "json2geobuf": "bin/json2geobuf",
     "shp2geobuf": "bin/shp2geobuf"
   },
   "scripts": {
