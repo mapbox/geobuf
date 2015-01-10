@@ -154,7 +154,7 @@ function readTransformField(tag, tr, pbf) {
 function readPoint(pbf) {
     var end = pbf.readVarint() + pbf.pos,
         coords = [];
-    while (pbf.pos < end) coords.push(pbf.readSVarint() / e);
+    while (pbf.pos < end) coords.push(transformCoord(pbf.readSVarint()));
     return coords;
 }
 
@@ -178,8 +178,7 @@ function readLinePart(pbf, end, len, isMultiPoint) {
             var p = [];
             for (var d = 0; d < dim; d++) {
                 prevP[d] += pbf.readSVarint();
-                p[d] = prevP[d] / e;
-                // TODO no-transform TopoJSON
+                p[d] = transformCoord(prevP[d]);
             }
             coords.push(p);
             i++;
@@ -227,11 +226,15 @@ function readArcs(pbf) {
         var ring = [];
         for (var j = 0; j < lengths[i]; j++) {
             var p = [];
-            for (var d = 0; d < dim; d++) p[d] = pbf.readSVarint();
+            for (var d = 0; d < dim; d++) p[d] = transformCoord(pbf.readSVarint());
             ring.push(p);
         }
         lines.push(ring);
     }
 
     return lines;
+}
+
+function transformCoord(x) {
+    return transformed ? x : x / e;
 }

@@ -27,8 +27,6 @@ function encode(obj, pbf) {
     e = Math.min(e, 1e6);
     var precision = Math.ceil(Math.log(e) / Math.LN10);
 
-    console.log('keys', keys, 'dim', dim, 'precision', precision);
-
     var keysArr = Object.keys(keys);
 
     for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
@@ -179,7 +177,7 @@ function writeTopology(topology, pbf) {
         lengths.push(arc.length);
 
         for (j = 0; j < arc.length; j++) {
-            for (d = 0; d < dim; d++) coords.push(Math.round(arc[j][d]));
+            for (d = 0; d < dim; d++) coords.push(transformCoord(arc[j][d]));
         }
     }
 
@@ -215,7 +213,7 @@ function writeValue(value, pbf) {
 
 function writePoint(point, pbf) {
     var coords = [];
-    for (var i = 0; i < dim; i++) coords.push(Math.round(point[i] * e));
+    for (var i = 0; i < dim; i++) coords.push(transformCoord(point[i]));
     pbf.writePackedSVarint(3, coords);
 }
 
@@ -260,8 +258,12 @@ function populateLine(coords, line, isMultiPoint) {
     var i, j, p;
     for (i = 0; i < line.length; i++) {
         if (isTopo && !isMultiPoint) coords.push(i ? line[i] - line[i - 1] : line[i]);
-        else for (j = 0; j < dim; j++) coords.push(Math.round((line[i][j] - (i ? line[i - 1][j] : 0)) * e));
+        else for (j = 0; j < dim; j++) coords.push(transformCoord(line[i][j] - (i ? line[i - 1][j] : 0)));
     }
+}
+
+function transformCoord(x) {
+    return transformed ? x : Math.round(x * e);
 }
 
 function writeTransform(tr, pbf) {
