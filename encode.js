@@ -151,7 +151,7 @@ function writeGeometry(geom, pbf) {
         else pbf.writeStringField(11, geom.id);
     }
 
-    if (isTopo) writeProps(geom.properties, pbf);
+    if (isTopo && geom.properties) writeProps(geom.properties, pbf);
     // TODO custom props
 }
 

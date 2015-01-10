@@ -12,6 +12,7 @@ function decode(pbf) {
     e = Math.pow(10, 6);
     isTopo = false;
     transformed = false;
+    lengths = null;
 
     keys = [];
     values = [];
@@ -63,7 +64,7 @@ function readTopologyField(tag, topology, pbf) {
         transformed = true;
     }
     else if (tag === 2) names.push(pbf.readString());
-    else if (tag === 3) topology.objects[names.unshift()] = pbf.readMessage(readGeometryField, {});
+    else if (tag === 3) topology.objects[names.shift()] = pbf.readMessage(readGeometryField, {});
 
     else if (tag === 4) lengths = pbf.readPackedVarint();
     else if (tag === 5) topology.arcs = readArcs(pbf);
@@ -94,11 +95,8 @@ function readGeometryField(tag, geom, pbf) {
     if (tag === 1) geom.type = geometryTypes[pbf.readVarint()];
 
     else if (tag === 2) lengths = pbf.readPackedVarint();
-    else if (tag === 3) {
-        if (isTopo) geom.arcs = readCoords(pbf, geom.type);
-        else geom.coordinates = readCoords(pbf, geom.type);
-
-    } else if (tag === 4) {
+    else if (tag === 3) readCoords(geom, pbf, geom.type);
+    else if (tag === 4) {
         geom.geometries = geom.geometries || [];
         geom.geometries.push(readGeometry(pbf, {}));
     }
@@ -111,12 +109,13 @@ function readGeometryField(tag, geom, pbf) {
     else if (tag === 15) readProps(pbf, geom);
 }
 
-function readCoords(pbf, type) {
-    if (type === 'Point') return readPoint(pbf);
-    else if (type === 'MultiPoint') return readLine(pbf, true);
-    else if (type === 'LineString') return readLine(pbf);
-    else if (type === 'MultiLineString' || type === 'Polygon') return readMultiLine(pbf);
-    else if (type === 'MultiPolygon') return readMultiPolygon(pbf);
+function readCoords(geom, pbf, type) {
+    var coordsOrArcs = isTopo ? 'arcs' : 'coordinates';
+    if (type === 'Point') geom.coordinates = readPoint(pbf);
+    else if (type === 'MultiPoint') geom.coordinates = readLine(pbf, true);
+    else if (type === 'LineString') geom[coordsOrArcs] = readLine(pbf);
+    else if (type === 'MultiLineString' || type === 'Polygon') geom[coordsOrArcs] = readMultiLine(pbf);
+    else if (type === 'MultiPolygon') geom[coordsOrArcs] = readMultiPolygon(pbf);
 }
 
 function readValue(pbf) {
