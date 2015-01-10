@@ -1,7 +1,0 @@
-#!/usr/bin/env node
-
-var geobuf = require('../'),
-    rw = require('rw');
-
-var buf = geobuf.featureToGeobuf(JSON.parse(rw.readFileSync('/dev/stdin')));
-process.stdout.write(buf.encode().toBuffer());

@@ -1,7 +1,7 @@
 {
   "name": "geobuf",
-  "version": "0.2.2",
-  "description": "geographic compact binary encoding specification",
+  "version": "1.0.0",
+  "description": "Compact binary encoding for geographic data",
   "main": "index.js",
   "bin": {
     "geobuf2geojson": "bin/geobuf2geojson",
@@ -9,8 +9,9 @@
     "shp2geobuf": "bin/shp2geobuf"
   },
   "scripts": {
-    "test": "tap test/*.js",
-    "cov": "istanbul cover test/*.js"
+    "test": "jshint *.js test/*.js && tap test/*.js",
+    "cov": "istanbul cover test/*.js",
+    "coveralls": "istanbul cover test/*.js && coveralls < ./coverage/lcov.info"
   },
   "repository": {
     "type": "git",
@@ -20,25 +21,35 @@
     "geographic",
     "data",
     "buffer",
-    "protobuf"
+    "protobuf",
+    "format",
+    "compression",
+    "geojson",
+    "topojson"
   ],
-  "author": "Tom MacWright",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/mapbox/geobuf/issues"
   },
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
-    "tap": "~0.4.11",
-    "istanbul": "~0.3.0",
-    "coveralls": "~2.11.1",
+    "benchmark": "~1.0.0",
+    "coveralls": "~2.11.2",
     "geojson-fixtures": "0.2.0",
-    "benchmark": "~1.0.0"
+    "istanbul": "~0.3.5",
+    "jshint": "^2.5.11",
+    "tap": "~0.4.13"
   },
   "dependencies": {
-    "protobufjs": "~3.0.0",
-    "underscore": "~1.6.0",
+    "pbf": "^1.2.0",
     "rw": "~0.1.4",
     "shapefile": "~0.3.0"
+  },
+  "jshintConfig": {
+    "trailing": true,
+    "undef": true,
+    "unused": true,
+    "indent": 4,
+    "node": true
   }
 }

@@ -1,16 +1,66 @@
 option optimize_for = LITE_RUNTIME;
 
-message featurecollection {
-    repeated feature features = 1;
-}
+message Data {
+    repeated string keys = 1; // global arrays of unique keys
 
-message feature {
-    repeated geometry geometries = 1;
-    repeated property properties = 2;
-    optional id id = 3;
-}
+    optional uint32 dimensions = 2 [default = 2]; // max coordinate dimensions
+    optional uint32 precision = 3 [default = 6]; // number of digits after decimal point for coordinates
 
-message geometry {
+    oneof data_type {
+        FeatureCollection feature_collection = 4;
+        Feature feature = 5;
+        Geometry geometry = 6;
+        Topology topology = 7;
+    }
+
+
+    message Feature {
+        required Geometry geometry = 1;
+
+        oneof id_type {
+            string id = 11;
+            sint32 int_id = 12;
+        }
+        repeated Value values = 13; // unique values
+        repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes
+        repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
+    }
+
+    message Geometry {
+        required Type type = 1;
+
+        repeated uint32 lengths = 2 [packed = true]; // coordinate structure in lengths
+        repeated sint32 coords = 3 [packed = true]; // delta-encoded integer values
+        repeated Geometry geometries = 4;
+
+        oneof id_type { // TopoJSON has props/id in Geometry rather than Feature
+            string id = 11;
+            sint32 int_id = 12;
+        }
+        repeated Value values = 13;
+        repeated uint32 properties = 14 [packed = true];
+        repeated uint32 custom_properties = 15 [packed = true];
+    }
+
+    message FeatureCollection {
+        repeated Feature features = 1;
+
+        repeated Value values = 13;
+        repeated uint32 custom_properties = 15 [packed = true];
+    }
+
+    message Topology {
+        optional Transform transform = 1;
+
+        repeated string names = 2;
+        repeated Geometry objects = 3;
+
+        repeated uint32 lengths = 4 [packed = true];
+        repeated sint32 coords = 5 [packed = true]; // arcs coordinates
+
+        repeated Value values = 13;
+        repeated uint32 custom_properties = 15 [packed = true];
+    }
 
     enum Type {
         POINT = 0;
@@ -19,37 +69,24 @@ message geometry {
         MULTILINESTRING = 3;
         POLYGON = 4;
         MULTIPOLYGON = 5;
+        GEOMETRYCOLLECTION = 6;
     }
 
-    required Type type = 1;
-    repeated coord_array coord_array = 3;
-    repeated multi_array multi_array = 4;
-}
+    message Value {
+        oneof value_type {
+            string string_value = 1;
+            double double_value = 2;
+            uint32 pos_int_value = 3;
+            uint32 neg_int_value = 4;
+            bool bool_value = 5;
+            string json_value = 6;
+        }
+    }
 
-message property {
-    required string key = 1;
-    optional value value = 2;
-}
-
-message id {
-    required string value = 1;
-}
-
-message value {
-    optional string string_value = 1;
-    optional float float_value = 2;
-    optional double double_value = 3;
-    optional int64 int_value = 4;
-    optional uint64 uint_value = 5;
-    optional sint64 sint_value = 6;
-    optional bool bool_value = 7;
-}
-
-message coord_array {
-    repeated int64 coords = 1 [packed=true];
-    optional bool is_xyz = 2;
-}
-
-message multi_array {
-    repeated coord_array arrays = 1;
+    message Transform {
+        required double scale_x = 1;
+        required double scale_y = 2;
+        required double translate_x = 3;
+        required double translate_y = 4;
+    }
 }

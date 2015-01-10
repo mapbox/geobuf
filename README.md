@@ -1,53 +1,85 @@
-# geobuf
+# Geobuf
 
-[![build status](https://secure.travis-ci.org/mapbox/geobuf.png)](http://travis-ci.org/mapbox/geobuf)
+[![Build Status](https://travis-ci.org/mapbox/geobuf.svg)](https://travis-ci.org/mapbox/geobuf)
+[![Coverage Status](https://img.shields.io/coveralls/mapbox/geobuf.svg)](https://coveralls.io/r/mapbox/geobuf)
 
-A [compact encoding](geobuf.proto) for geographic data.
+Geobuf is a compact binary encoding for geographic data.
 
-Like [vector-tile-spec](https://github.com/mapbox/vector-tile-spec),
-this is a [protobuf](http://code.google.com/p/protobuf/)-based encoding.
+Geobuf provides _lossless_ compression of GeoJSON and TopoJSON data
+into [protocol buffers](https://developers.google.com/protocol-buffers/).
+Advantages over using JSON-based formats alone:
 
-Unlike vector-tile-spec, this deals with untiled data in native projections.
+- **Very compact**: typically makes GeoJSON 6-8 times smaller and TopoJSON 2-3 times smaller.
+- Smaller even when comparing gzipped sizes: 2-2.5x compression for GeoJSON and 20-30% for TopoJSON.
+- **Very fast encoding and decoding** &mdash; even faster than native JSON parse/stringify.
+- Can accommodate any GeoJSON and TopoJSON data, including extensions with arbitrary properties.
+
+The [encoding format](geobuf.proto) also potentially allows:
+
+- Easy **incremental parsing** &mdash; get features out as you read them,
+without the need to build in-memory representation of the whole data.
+- **Partial reads** &mdash; read only the parts you actually need, skipping the rest.
+
+Think of this as an attempt to design a simple, modern Shapefile successor
+that works seamlessly with GeoJSON and TopoJSON.
+Unlike [Mapbox Vector Tiles](https://github.com/mapbox/vector-tile-spec/),
+it aims for _lossless_ compression of datasets &mdash; without tiling, projecting coordinates,
+flattening geometries or stripping properties.
+
+#### Sample compression sizes
+
+                    | normal    | gzipped
+------------------- | --------- | --------
+us-zips.json 	    | 101.85 MB | 26.67 MB
+us-zips.pbf         | 12.24 MB  | 10.48 MB
+us-zips.topo.json   | 15.02 MB  | 3.19 MB
+us-zips.topo.pbf    | 4.85 MB   | 2.72 MB
+idaho.json          | 10.92 MB  | 2.57 MB
+idaho.pbf           | 1.37 MB   | 1.17 MB
+idaho.topo.json     | 1.9 MB    | 612 KB
+idaho.topo.pbf      | 567 KB    | 479 KB
 
 ## API
 
-### `featureCollectionToGeobuf(geojson)`
+### encode
 
-Given a GeoJSON FeatureCollection as an object, return a Buffer of
-geobuf as a [ProtoBufjs](https://github.com/dcodeIO/ProtoBuf.js) object.
+```js
+var buffer = geobuf.encode(geojson, new Pbf());
+```
 
-### `featureToGeobuf(geojson)`
+Given a GeoJSON or TopoJSON object and a [Pbf](https://github.com/mapbox/pbf) object to write to,
+returns a Geobuf as a `Buffer` object in Node or `UInt8Array` object in browsers.
 
-Given a GeoJSON Feature as an object, return a Buffer of
-geobuf as a [ProtoBufjs](https://github.com/dcodeIO/ProtoBuf.js) object.
+### decode
 
-### `geobufToFeature(buf)`
+```js
+var geojson = geobuf.decode(new Pbf(data));
+```
 
-Given a Buffer of geobuf, return a GeoJSON Feature as an object.
+Given a [Pbf](https://github.com/mapbox/pbf) object with Geobuf data, return a GeoJSON or TopoJSON object.
 
-### `geobufToFeatureCollection(buf)`
-
-Given a Buffer of geobuf, return a GeoJSON FeatureCollection as an object.
-
-## Binaries
+## Command Line
 
     npm install -g geobuf
 
 Installs these nifty binaries:
 
-* `geobuf2geojson`: turn geobuf from stdin to geojson on stdout
-* `geojson2geobuf`: turn geojson from stdin to geobuf on stdout
-* `shp2geobuf`: given a shapefile filename, send geobuf on stdout
+* `geobuf2json`: turn Geobuf from stdin to GeoJSON/TopoJSON on stdout
+* `json2geobuf`: turn GeoJSON or TopoJSON from stdin to Geobuf on stdout
+* `shp2geobuf`: given a Shapefile filename, send Geobuf on stdout
+
+```bash
+json2geobuf < data.json > data.pbf
+shp2geobuf myshapefile > data.pbf
+geobuf2json < data.pbf > data.json
+```
 
 ## See Also
 
-* [geojsonp](https://github.com/springmeyer/geojsonp) - the base for this project,
-  this is more or less geojsonp with more wheelies.
-* [twkb](https://github.com/nicklasaven/TWKB) - relative to TWKB, this is an
-  implemented project that does not support topology and uses protobuf as its serialization
+* [geojsonp](https://github.com/springmeyer/geojsonp) &mdash; the prototype that led to this project
+* [twkb](https://github.com/TWKB/Specification) &mdash; a geospatial binary encoding that doesn't support topology
+and doesn't encode any non-geographic properties besides `id`
 * [vector-tile-spec](https://github.com/mapbox/vector-tile-spec)
-* [topojson](https://github.com/mbostock/topojson) - a variant of GeoJSON
-  that supports topology and delta-encoding; geobuf does not support topology and does not yet support delta-encoding
-* [WKT and WKB](https://en.wikipedia.org/wiki/Well-known_text) - popular in databases.
-  Not an open standard.
+* [topojson](https://github.com/mbostock/topojson) &mdash; an extension of GeoJSON that supports topology
+* [WKT and WKB](https://en.wikipedia.org/wiki/Well-known_text) &mdash; popular in databases. Not an open standard.
 * [EWKB](http://postgis.refractions.net/docs/using_postgis_dbmanagement.html#EWKB_EWKT) is a popular superset of WKB.

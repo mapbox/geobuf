@@ -1,52 +1,30 @@
 var geobuf = require('../'),
-    _ = require('underscore'),
     geojsonFixtures = require('geojson-fixtures'),
-    test = require('tap').test;
+    Pbf = require('pbf'),
+    test = require('tap').test,
+    fs = require('fs');
 
-var feat = {
-    type: 'Feature',
-    geometry: {
-        type: 'Point',
-        coordinates: [0, 0]
-    },
-    properties: {
-        name: 'Hello world',
-        b: 2,
-        thing: true
+for (var type in geojsonFixtures) {
+    for (var name in geojsonFixtures[type]) {
+        if (name === 'polygon-xyz') continue; // missing coord data not supported yet
+        test('roundtrip GeoJSON: ' + type + ' ' + name, roundtripTest(geojsonFixtures[type][name]));
     }
-};
+}
 
-test('featureToGeobuf', function(t) {
-    var buf = geobuf.featureToGeobuf(feat);
-    t.ok(buf, 'encodes a message');
-    t.end();
-});
+var files = ['no-transform', 'simple', 'us-states'];
+for (var i = 0; i < files.length; i++) {
+    test('roundtrip TopoJSON: ' + files[i], roundtripTest(getJSON(files[i] + '.topo.json')));
+}
 
-test('featureToGeobuf - throws', function(t) {
-    t.throws(function() {
-        geobuf.featureToGeobuf(_.extend({}, feat, {type:'huh'}));
-    });
-    t.throws(function() {
-        geobuf.featureToGeobuf(_.extend({}, feat, {geometry:{type:'huh'}}));
-    });
-    t.end();
-});
+test('roundtrip custom properties', roundtripTest(getJSON('props.json')));
 
-test('geobufToFeature', function(t) {
-    for (var k in geojsonFixtures.geometry) {
-        var ex = _.extend({}, feat, { geometry: geojsonFixtures.geometry[k] });
-        t.comment(k + ': ' + geobuf.featureToGeobuf(ex).encode().toBuffer().length);
-        t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(ex).encode()), ex, k);
-    }
-    var withId = _.extend({id: 'i-can-haz-id'}, feat, { geometry: geojsonFixtures.geometry[k] });
-    t.deepEqual(geobuf.geobufToFeature(geobuf.featureToGeobuf(withId).encode()), withId, k + 'with id');
-    t.end();
-});
+function roundtripTest(geojson) {
+    return function (t) {
+        t.same(geobuf.decode(new Pbf(geobuf.encode(geojson, new Pbf()))), geojson);
+        t.end();
+    };
+}
 
-test('featurecollection', function(t) {
-    for (var k in geojsonFixtures.featurecollection) {
-        var ex = geojsonFixtures.featurecollection[k];
-        t.ok(geobuf.featureCollectionToGeobuf(ex).encode(), k);
-    }
-    t.end();
-});
+function getJSON(name) {
+    return JSON.parse(fs.readFileSync(__dirname + '/fixtures/' + name));
+}

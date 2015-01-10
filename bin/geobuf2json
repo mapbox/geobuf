@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+var decode = require('../decode'),
+	Pbf = require('pbf'),
+    rw = require('rw');
+
+var data = rw.readFileSync('/dev/stdin');
+
+// console.time('decode');
+var geojson = decode(new Pbf(data));
+// console.timeEnd('decode');
+
+// console.time('stringify');
+var data = JSON.stringify(geojson);
+// console.timeEnd('stringify');
+
+// console.time('JSON.parse');
+// JSON.parse(data);
+// console.timeEnd('JSON.parse');
+
+process.stdout.write(data);
