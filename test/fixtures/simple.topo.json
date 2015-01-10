@@ -21,7 +21,8 @@
             "prop0": "value0",
             "prop1": 0
           },
-          "arcs": [0]
+          "arcs": [0],
+          "foo": ["bar", 5]
         },
         {
           "type": "Polygon",

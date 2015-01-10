@@ -116,7 +116,7 @@ function writeFeatureCollection(obj, pbf) {
     for (var i = 0; i < obj.features.length; i++) {
         pbf.writeMessage(1, writeFeature, obj.features[i]);
     }
-    // TODO custom props
+    writeProps(obj, pbf, true);
 }
 
 function writeFeature(feature, pbf) {
@@ -128,7 +128,7 @@ function writeFeature(feature, pbf) {
     }
 
     if (feature.properties) writeProps(feature.properties, pbf);
-    // TODO custom props
+    writeProps(feature, pbf, true);
 }
 
 function writeGeometry(geom, pbf) {
@@ -152,7 +152,7 @@ function writeGeometry(geom, pbf) {
     }
 
     if (isTopo && geom.properties) writeProps(geom.properties, pbf);
-    // TODO custom props
+    writeProps(geom, pbf, true);
 }
 
 function writeTopology(topology, pbf) {
@@ -184,18 +184,29 @@ function writeTopology(topology, pbf) {
     pbf.writePackedVarint(4, lengths);
     pbf.writePackedSVarint(5, coords);
 
-    // TODO custom props
+    writeProps(topology, pbf, true);
 }
 
-function writeProps(props, pbf) {
+function writeProps(props, pbf, isCustom) {
     var indexes = [],
         valueIndex = 0;
 
     for (var key in props) {
+        if (isCustom) {
+            if (key === 'type') continue;
+            else if (props.type === 'FeatureCollection') {
+                if (key === 'features') continue;
+            } else if (props.type === 'Feature') {
+                if (key === 'id' || key === 'properties' || key === 'geometry') continue;
+            } else if (props.type === 'Topology')  {
+                if (key === 'transform' || key === 'arcs' || key === 'objects') continue;
+            } else if (key === 'id' || key === 'coordinates' || key === 'arcs' ||
+                       key === 'geometries' || key === 'properties') continue;
+        }
         pbf.writeMessage(13, writeValue, props[key]);
         indexes.push(keys[key], valueIndex++);
     }
-    pbf.writePackedVarint(14, indexes);
+    pbf.writePackedVarint(isCustom ? 15 : 14, indexes);
 }
 
 function writeValue(value, pbf) {

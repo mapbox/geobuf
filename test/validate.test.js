@@ -13,13 +13,18 @@ for (var type in geojsonFixtures) {
 
 var files = ['no-transform', 'simple', 'us-states'];
 for (var i = 0; i < files.length; i++) {
-    var geojson = JSON.parse(fs.readFileSync(__dirname + '/fixtures/' + files[i] + '.topo.json'));
-    test('roundtrip TopoJSON: ' + files[i], roundtripTest(geojson));
+    test('roundtrip TopoJSON: ' + files[i], roundtripTest(getJSON(files[i] + '.topo.json')));
 }
+
+test('roundtrip custom properties', roundtripTest(getJSON('props.json')));
 
 function roundtripTest(geojson) {
     return function (t) {
         t.same(geobuf.decode(new Pbf(geobuf.encode(geojson, new Pbf()))), geojson);
         t.end();
     };
+}
+
+function getJSON(name) {
+    return JSON.parse(fs.readFileSync(__dirname + '/fixtures/' + name));
 }
