@@ -85,14 +85,14 @@ npm install -g geobuf
 
 Installs these nifty binaries:
 
-* `geobuf2json`: turn Geobuf from stdin to GeoJSON/TopoJSON on stdout
-* `json2geobuf`: turn GeoJSON or TopoJSON from stdin to Geobuf on stdout
-* `shp2geobuf`: given a Shapefile filename, send Geobuf on stdout
+* `geobuf2json`: turn Geobuf from `stdin` or specified file to GeoJSON/TopoJSON on `stdout`
+* `json2geobuf`: turn GeoJSON or TopoJSON from `stdin` or specified file to Geobuf on `stdout`
+* `shp2geobuf`: given a Shapefile filename, send Geobuf on `stdout`
 
 ```bash
-json2geobuf < data.json > data.pbf
+json2geobuf data.json > data.pbf
 shp2geobuf myshapefile > data.pbf
-geobuf2json < data.pbf > data.json
+geobuf2json data.pbf > data.json
 ```
 
 ## See Also
