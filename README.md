@@ -39,6 +39,7 @@ idaho.pbf           | 1.37 MB   | 1.17 MB
 idaho.topo.json     | 1.9 MB    | 612 KB
 idaho.topo.pbf      | 567 KB    | 479 KB
 
+
 ## API
 
 ### encode
@@ -58,9 +59,29 @@ var geojson = geobuf.decode(new Pbf(data));
 
 Given a [Pbf](https://github.com/mapbox/pbf) object with Geobuf data, return a GeoJSON or TopoJSON object.
 
+
+## Install
+
+Node and Browserify:
+
+```bash
+npm install geobuf
+```
+
+Making a browser build:
+
+```bash
+npm install
+npm run build-dev # dist/geobuf-dev.js (development build)
+npm run build-min # dist/geobuf.js (minified production build)
+```
+
+
 ## Command Line
 
-    npm install -g geobuf
+```bash
+npm install -g geobuf
+```
 
 Installs these nifty binaries:
 
