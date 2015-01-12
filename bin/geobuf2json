@@ -2,20 +2,23 @@
 
 var decode = require('../decode'),
 	Pbf = require('pbf'),
-    rw = require('rw');
+    fs = require('fs'),
+    concat = require('concat-stream');
 
-var data = rw.readFileSync('/dev/stdin');
+var input = process.stdin.isTTY ? fs.createReadStream(process.argv[2]) : process.stdin;
 
-// console.time('decode');
-var geojson = decode(new Pbf(data));
-// console.timeEnd('decode');
+input.pipe(concat(function(buf) {
+	// console.time('decode');
+	var geojson = decode(new Pbf(buf));
+	// console.timeEnd('decode');
 
-// console.time('stringify');
-var data = JSON.stringify(geojson);
-// console.timeEnd('stringify');
+	// console.time('stringify');
+	var data = JSON.stringify(geojson);
+	// console.timeEnd('stringify');
 
-// console.time('JSON.parse');
-// JSON.parse(data);
-// console.timeEnd('JSON.parse');
+	// console.time('JSON.parse');
+	// JSON.parse(data);
+	// console.timeEnd('JSON.parse');
 
-process.stdout.write(data);
+	process.stdout.write(data);
+}));

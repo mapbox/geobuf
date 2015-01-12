@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var encode = require('../encode'),
-	Pbf = require('pbf'),
+    Pbf = require('pbf'),
     shapefile = require('shapefile');
 
 shapefile.read(process.argv[2], function(err, geojson) {

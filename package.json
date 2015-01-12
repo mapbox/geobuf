@@ -44,8 +44,8 @@
     "tap": "~0.4.13"
   },
   "dependencies": {
+    "concat-stream": "^1.4.7",
     "pbf": "^1.2.0",
-    "rw": "~0.1.4",
     "shapefile": "~0.3.0"
   },
   "jshintConfig": {
