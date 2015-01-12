@@ -2,7 +2,8 @@
 
 module.exports = encode;
 
-var keys, keysNum, dim, e, isTopo, transformed;
+var keys, keysNum, dim, e, isTopo, transformed,
+    maxPrecision = 1e6;
 
 var geometryTypes = {
     'Point': 0,
@@ -24,7 +25,7 @@ function encode(obj, pbf) {
 
     analyze(obj);
 
-    e = Math.min(e, 1e6);
+    e = Math.min(e, maxPrecision);
     var precision = Math.ceil(Math.log(e) / Math.LN10);
 
     var keysArr = Object.keys(keys);
@@ -104,7 +105,7 @@ function analyzePoint(point) {
 
     // find max precision
     for (var i = 0; i < point.length; i++) {
-        while (Math.round(point[i] * e) / e !== point[i]) e *= 10;
+        while (Math.round(point[i] * e) / e !== point[i] && e < maxPrecision) e *= 10;
     }
 }
 
