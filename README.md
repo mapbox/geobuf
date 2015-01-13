@@ -26,6 +26,10 @@ Unlike [Mapbox Vector Tiles](https://github.com/mapbox/vector-tile-spec/),
 it aims for _lossless_ compression of datasets &mdash; without tiling, projecting coordinates,
 flattening geometries or stripping properties.
 
+Note that the encoding schema is **not stable yet** &mdash;
+it may still change as we get community feedback and discover new ways to improve it.
+
+
 #### Sample compression sizes
 
                     | normal    | gzipped
@@ -94,6 +98,11 @@ json2geobuf data.json > data.pbf
 shp2geobuf myshapefile > data.pbf
 geobuf2json data.pbf > data.json
 ```
+
+Note that for big files, `geobuf2json` command can be pretty slow, but the bottleneck is not the decoding,
+but the native `JSON.stringify` on the decoded object to pipe it as a string to `stdout`.
+On some files, this step may take 40 times more time than actual decoding.
+
 
 ## See Also
 
