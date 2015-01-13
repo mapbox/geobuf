@@ -111,5 +111,5 @@ On some files, this step may take 40 times more time than actual decoding.
 and doesn't encode any non-geographic properties besides `id`
 * [vector-tile-spec](https://github.com/mapbox/vector-tile-spec)
 * [topojson](https://github.com/mbostock/topojson) &mdash; an extension of GeoJSON that supports topology
-* [WKT and WKB](https://en.wikipedia.org/wiki/Well-known_text) &mdash; popular in databases. Not an open standard.
-* [EWKB](http://postgis.refractions.net/docs/using_postgis_dbmanagement.html#EWKB_EWKT) is a popular superset of WKB.
+* [WKT and WKB](https://en.wikipedia.org/wiki/Well-known_text) &mdash; popular in databases
+* [EWKB](http://postgis.refractions.net/docs/using_postgis_dbmanagement.html#EWKB_EWKT) &mdash; a popular superset of WKB

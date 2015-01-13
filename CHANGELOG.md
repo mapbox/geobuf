@@ -1,9 +1,11 @@
-## 1.0.1 (Jan 13, 2015)
+## Geobuf Changelog
+
+### 1.0.1 (Jan 13, 2015)
 
 - Fixed a bug that sometimes led to a freeze when encoding high-precision data.
 - `json2geobuf` and `geobuf2json` executables now also accept filename in addition to stdin
 
-## 1.0.0 (Jan 11, 2015)
+### 1.0.0 (Jan 11, 2015)
 
 A complete redesign and rewrite of Geobuf. Most notable improvements:
 
