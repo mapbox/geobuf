@@ -29,6 +29,7 @@ message geometry {
 message property {
     required string key = 1;
     optional value value = 2;
+    optional bool object = 3;
 }
 
 message id {

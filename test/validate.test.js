@@ -12,7 +12,10 @@ var feat = {
     properties: {
         name: 'Hello world',
         b: 2,
-        thing: true
+        thing: true,
+        nested: {attr: 'value'},
+        array: [1,2,'a'],
+        value: null
     }
 };
 
