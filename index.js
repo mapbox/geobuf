@@ -204,7 +204,7 @@ function _geobufToFeature(feature, b) {
 
     for (var i = 0; i < feature.properties.length; i++) {
         // inefficient!
-        var value = _.find( _.values(feature.properties[i].value), truthy);
+        var value = _.find(_.values(feature.properties[i].value), truthy);
 
         if (feature.properties[i].object) {
             value = JSON.parse(value);
