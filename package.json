@@ -1,6 +1,6 @@
 {
   "name": "geobuf",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "geographic compact binary encoding specification",
   "main": "index.js",
   "bin": {
