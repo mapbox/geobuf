@@ -13,8 +13,14 @@ var feat = {
         name: 'Hello world',
         b: 2,
         thing: true,
-        nested: {attr: 'value'},
-        array: [1,2,'a'],
+        nested: {
+            attr: 'value',
+            array: [1, 2, 'a', {foo: 'bar'}, [1, 2], {}, []],
+            value: null,
+            obj: {foo: 'bar'},
+            empty: {}
+        },
+        array: [1, 2, 'a', {foo: 'bar'}, [1, 2], {}, []],
         value: null
     }
 };
