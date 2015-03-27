@@ -1,8 +1,11 @@
+'use strict';
+
 var geobuf = require('../'),
     geojsonFixtures = require('geojson-fixtures').all,
     Pbf = require('pbf'),
     test = require('tap').test,
-    fs = require('fs');
+    fs = require('fs'),
+    path = require('path');
 
 for (var name in geojsonFixtures) {
     if (name === 'polygon-xyz-0-7') continue; // missing coord data not supported yet
@@ -24,5 +27,5 @@ function roundtripTest(geojson) {
 }
 
 function getJSON(name) {
-    return JSON.parse(fs.readFileSync(__dirname + '/fixtures/' + name));
+    return JSON.parse(fs.readFileSync(path.join(__dirname, '/fixtures/' + name)));
 }

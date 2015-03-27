@@ -194,15 +194,15 @@ function writeProps(props, pbf, isCustom) {
 
     for (var key in props) {
         if (isCustom) {
-            if (key === 'type') continue;
+            if (key === 'type' || key === 'id' || key === 'coordinates' || key === 'arcs' ||
+                key === 'geometries' || key === 'properties') continue;
             else if (props.type === 'FeatureCollection') {
                 if (key === 'features') continue;
             } else if (props.type === 'Feature') {
                 if (key === 'id' || key === 'properties' || key === 'geometry') continue;
-            } else if (props.type === 'Topology')  {
+            } else if (props.type === 'Topology') {
                 if (key === 'transform' || key === 'arcs' || key === 'objects') continue;
-            } else if (key === 'id' || key === 'coordinates' || key === 'arcs' ||
-                       key === 'geometries' || key === 'properties') continue;
+            }
         }
         pbf.writeMessage(13, writeValue, props[key]);
         indexes.push(keys[key]);
@@ -218,9 +218,9 @@ function writeValue(value, pbf) {
     else if (type === 'boolean') pbf.writeBooleanField(5, value);
     else if (type === 'object') pbf.writeStringField(6, JSON.stringify(value));
     else if (type === 'number') {
-       if (value % 1 !== 0) pbf.writeDoubleField(2, value);
-       else if (value >= 0) pbf.writeVarintField(3, value);
-       else pbf.writeVarintField(4, -value);
+        if (value % 1 !== 0) pbf.writeDoubleField(2, value);
+        else if (value >= 0) pbf.writeVarintField(3, value);
+        else pbf.writeVarintField(4, -value);
     }
 }
 

@@ -9,7 +9,7 @@
     "shp2geobuf": "bin/shp2geobuf"
   },
   "scripts": {
-    "test": "jshint *.js test/*.js && tap test/*.js",
+    "test": "eslint *.js test/*.js && tap test/*.js",
     "cov": "istanbul cover test/*.js",
     "coveralls": "istanbul cover test/*.js && coveralls < ./coverage/lcov.info",
     "build-min": "mkdirp dist && browserify index.js -s geobuf | uglifyjs -c warnings=false -m > dist/geobuf.js",
@@ -37,9 +37,9 @@
   "devDependencies": {
     "benchmark": "~1.0.0",
     "coveralls": "~2.11.2",
+    "eslint": "^0.17.1",
     "geojson-fixtures": "0.6.1",
     "istanbul": "~0.3.11",
-    "jshint": "^2.6.3",
     "mkdirp": "^0.5.0",
     "tap": "~0.7.1"
   },
@@ -47,12 +47,5 @@
     "concat-stream": "^1.4.7",
     "pbf": "^1.3.2",
     "shapefile": "~0.3.0"
-  },
-  "jshintConfig": {
-    "trailing": true,
-    "undef": true,
-    "unused": true,
-    "indent": 4,
-    "node": true
   }
 }
