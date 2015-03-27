@@ -7,7 +7,7 @@ Geobuf is a compact binary encoding for geographic data.
 
 Geobuf provides _lossless_ compression of GeoJSON data
 into [protocol buffers](https://developers.google.com/protocol-buffers/).
-Advantages over using JSON-based formats alone:
+Advantages over using GeoJSON alone:
 
 - **Very compact**: typically makes GeoJSON 6-8 times smaller.
 - 2-2.5x smaller even when comparing gzipped sizes.
@@ -102,6 +102,7 @@ On some files, this step may take 40 times more time than actual decoding.
 ## See Also
 
 * [geojsonp](https://github.com/springmeyer/geojsonp) &mdash; the prototype that led to this project
+* [pygeobuf](https://github.com/mapbox/pygeobuf) &mdsah; Python implementation of Geobuf
 * [twkb](https://github.com/TWKB/Specification) &mdash; a geospatial binary encoding that doesn't support topology
 and doesn't encode any non-geographic properties besides `id`
 * [vector-tile-spec](https://github.com/mapbox/vector-tile-spec)

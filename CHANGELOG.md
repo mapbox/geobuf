@@ -1,5 +1,9 @@
 ## Geobuf Changelog
 
+### master
+
+- **Breaking:** removed TopoJSON support. It will likely branch out into a separate repo/project.
+
 ### 1.0.1 (Jan 13, 2015)
 
 - Fixed a bug that sometimes led to a freeze when encoding high-precision data.
