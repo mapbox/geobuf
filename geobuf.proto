@@ -34,6 +34,16 @@ message Data {
 
         repeated Value values = 13;
         repeated uint32 custom_properties = 15 [packed = true];
+
+        enum Type {
+            POINT = 0;
+            MULTIPOINT = 1;
+            LINESTRING = 2;
+            MULTILINESTRING = 3;
+            POLYGON = 4;
+            MULTIPOLYGON = 5;
+            GEOMETRYCOLLECTION = 6;
+        }
     }
 
     message FeatureCollection {
@@ -41,16 +51,6 @@ message Data {
 
         repeated Value values = 13;
         repeated uint32 custom_properties = 15 [packed = true];
-    }
-
-    enum Type {
-        POINT = 0;
-        MULTIPOINT = 1;
-        LINESTRING = 2;
-        MULTILINESTRING = 3;
-        POLYGON = 4;
-        MULTIPOLYGON = 5;
-        GEOMETRYCOLLECTION = 6;
     }
 
     message Value {
