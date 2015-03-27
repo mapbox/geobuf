@@ -37,15 +37,15 @@
   "devDependencies": {
     "benchmark": "~1.0.0",
     "coveralls": "~2.11.2",
-    "geojson-fixtures": "0.2.0",
-    "istanbul": "~0.3.5",
-    "jshint": "^2.5.11",
+    "geojson-fixtures": "0.6.1",
+    "istanbul": "~0.3.11",
+    "jshint": "^2.6.3",
     "mkdirp": "^0.5.0",
-    "tap": "~0.4.13"
+    "tap": "~0.7.1"
   },
   "dependencies": {
     "concat-stream": "^1.4.7",
-    "pbf": "^1.2.0",
+    "pbf": "^1.3.2",
     "shapefile": "~0.3.0"
   },
   "jshintConfig": {

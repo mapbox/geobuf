@@ -1,14 +1,12 @@
 var geobuf = require('../'),
-    geojsonFixtures = require('geojson-fixtures'),
+    geojsonFixtures = require('geojson-fixtures').all,
     Pbf = require('pbf'),
     test = require('tap').test,
     fs = require('fs');
 
-for (var type in geojsonFixtures) {
-    for (var name in geojsonFixtures[type]) {
-        if (name === 'polygon-xyz') continue; // missing coord data not supported yet
-        test('roundtrip GeoJSON: ' + type + ' ' + name, roundtripTest(geojsonFixtures[type][name]));
-    }
+for (var name in geojsonFixtures) {
+    if (name === 'polygon-xyz-0-7') continue; // missing coord data not supported yet
+    test('roundtrip GeoJSON: ' + name, roundtripTest(geojsonFixtures[name]));
 }
 
 var files = ['no-transform', 'simple', 'us-states'];
