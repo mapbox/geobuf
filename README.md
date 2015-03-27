@@ -5,14 +5,14 @@
 
 Geobuf is a compact binary encoding for geographic data.
 
-Geobuf provides _lossless_ compression of GeoJSON and TopoJSON data
+Geobuf provides _lossless_ compression of GeoJSON data
 into [protocol buffers](https://developers.google.com/protocol-buffers/).
 Advantages over using JSON-based formats alone:
 
-- **Very compact**: typically makes GeoJSON 6-8 times smaller and TopoJSON 2-3 times smaller.
-- Smaller even when comparing gzipped sizes: 2-2.5x compression for GeoJSON and 20-30% for TopoJSON.
+- **Very compact**: typically makes GeoJSON 6-8 times smaller.
+- 2-2.5x smaller even when comparing gzipped sizes.
 - **Very fast encoding and decoding** &mdash; even faster than native JSON parse/stringify.
-- Can accommodate any GeoJSON and TopoJSON data, including extensions with arbitrary properties.
+- Can accommodate any GeoJSON data, including extensions with arbitrary properties.
 
 The [encoding format](geobuf.proto) also potentially allows:
 
@@ -21,7 +21,7 @@ without the need to build in-memory representation of the whole data.
 - **Partial reads** &mdash; read only the parts you actually need, skipping the rest.
 
 Think of this as an attempt to design a simple, modern Shapefile successor
-that works seamlessly with GeoJSON and TopoJSON.
+that works seamlessly with GeoJSON.
 Unlike [Mapbox Vector Tiles](https://github.com/mapbox/vector-tile-spec/),
 it aims for _lossless_ compression of datasets &mdash; without tiling, projecting coordinates,
 flattening geometries or stripping properties.
@@ -36,13 +36,8 @@ it may still change as we get community feedback and discover new ways to improv
 ------------------- | --------- | --------
 us-zips.json 	    | 101.85 MB | 26.67 MB
 us-zips.pbf         | 12.24 MB  | 10.48 MB
-us-zips.topo.json   | 15.02 MB  | 3.19 MB
-us-zips.topo.pbf    | 4.85 MB   | 2.72 MB
 idaho.json          | 10.92 MB  | 2.57 MB
 idaho.pbf           | 1.37 MB   | 1.17 MB
-idaho.topo.json     | 1.9 MB    | 612 KB
-idaho.topo.pbf      | 567 KB    | 479 KB
-
 
 ## API
 
@@ -52,7 +47,7 @@ idaho.topo.pbf      | 567 KB    | 479 KB
 var buffer = geobuf.encode(geojson, new Pbf());
 ```
 
-Given a GeoJSON or TopoJSON object and a [Pbf](https://github.com/mapbox/pbf) object to write to,
+Given a GeoJSON object and a [Pbf](https://github.com/mapbox/pbf) object to write to,
 returns a Geobuf as a `Buffer` object in Node or `UInt8Array` object in browsers.
 
 ### decode
@@ -61,7 +56,7 @@ returns a Geobuf as a `Buffer` object in Node or `UInt8Array` object in browsers
 var geojson = geobuf.decode(new Pbf(data));
 ```
 
-Given a [Pbf](https://github.com/mapbox/pbf) object with Geobuf data, return a GeoJSON or TopoJSON object.
+Given a [Pbf](https://github.com/mapbox/pbf) object with Geobuf data, return a GeoJSON object.
 
 
 ## Install
@@ -89,8 +84,8 @@ npm install -g geobuf
 
 Installs these nifty binaries:
 
-* `geobuf2json`: turn Geobuf from `stdin` or specified file to GeoJSON/TopoJSON on `stdout`
-* `json2geobuf`: turn GeoJSON or TopoJSON from `stdin` or specified file to Geobuf on `stdout`
+* `geobuf2json`: turn Geobuf from `stdin` or specified file to GeoJSON on `stdout`
+* `json2geobuf`: turn GeoJSON from `stdin` or specified file to Geobuf on `stdout`
 * `shp2geobuf`: given a Shapefile filename, send Geobuf on `stdout`
 
 ```bash

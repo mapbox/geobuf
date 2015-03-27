@@ -10,9 +10,7 @@ message Data {
         FeatureCollection feature_collection = 4;
         Feature feature = 5;
         Geometry geometry = 6;
-        Topology topology = 7;
     }
-
 
     message Feature {
         required Geometry geometry = 1;
@@ -21,6 +19,7 @@ message Data {
             string id = 11;
             sint32 int_id = 12;
         }
+
         repeated Value values = 13; // unique values
         repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes
         repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
@@ -33,30 +32,12 @@ message Data {
         repeated sint32 coords = 3 [packed = true]; // delta-encoded integer values
         repeated Geometry geometries = 4;
 
-        oneof id_type { // TopoJSON has props/id in Geometry rather than Feature
-            string id = 11;
-            sint32 int_id = 12;
-        }
         repeated Value values = 13;
-        repeated uint32 properties = 14 [packed = true];
         repeated uint32 custom_properties = 15 [packed = true];
     }
 
     message FeatureCollection {
         repeated Feature features = 1;
-
-        repeated Value values = 13;
-        repeated uint32 custom_properties = 15 [packed = true];
-    }
-
-    message Topology {
-        optional Transform transform = 1;
-
-        repeated string names = 2;
-        repeated Geometry objects = 3;
-
-        repeated uint32 lengths = 4 [packed = true];
-        repeated sint32 coords = 5 [packed = true]; // arcs coordinates
 
         repeated Value values = 13;
         repeated uint32 custom_properties = 15 [packed = true];
@@ -81,12 +62,5 @@ message Data {
             bool bool_value = 5;
             string json_value = 6;
         }
-    }
-
-    message Transform {
-        required double scale_x = 1;
-        required double scale_y = 2;
-        required double translate_x = 3;
-        required double translate_y = 4;
     }
 }

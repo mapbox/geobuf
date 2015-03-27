@@ -12,11 +12,6 @@ for (var name in geojsonFixtures) {
     test('roundtrip GeoJSON: ' + name, roundtripTest(geojsonFixtures[name]));
 }
 
-var files = ['no-transform', 'simple', 'us-states'];
-for (var i = 0; i < files.length; i++) {
-    test('roundtrip TopoJSON: ' + files[i], roundtripTest(getJSON(files[i] + '.topo.json')));
-}
-
 test('roundtrip custom properties', roundtripTest(getJSON('props.json')));
 
 function roundtripTest(geojson) {

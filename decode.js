@@ -2,7 +2,7 @@
 
 module.exports = decode;
 
-var keys, values, lengths, dim, e, isTopo, transformed, names;
+var keys, values, lengths, dim, e;
 
 var geometryTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
                       'Polygon', 'MultiPolygon', 'GeometryCollection'];
@@ -10,8 +10,6 @@ var geometryTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
 function decode(pbf) {
     dim = 2;
     e = Math.pow(10, 6);
-    isTopo = false;
-    transformed = false;
     lengths = null;
 
     keys = [];
@@ -30,7 +28,6 @@ function readDataField(tag, obj, pbf) {
     else if (tag === 4) readFeatureCollection(pbf, obj);
     else if (tag === 5) readFeature(pbf, obj);
     else if (tag === 6) readGeometry(pbf, obj);
-    else if (tag === 7) readTopology(pbf, obj);
 }
 
 function readFeatureCollection(pbf, obj) {
@@ -46,31 +43,6 @@ function readFeature(pbf, feature) {
 
 function readGeometry(pbf, geom) {
     return pbf.readMessage(readGeometryField, geom);
-}
-
-function readTopology(pbf, topology) {
-    isTopo = true;
-    topology.type = 'Topology';
-    topology.objects = {};
-    names = [];
-    pbf.readMessage(readTopologyField, topology);
-    names = null;
-    return topology;
-}
-
-function readTopologyField(tag, topology, pbf) {
-    if (tag === 1) {
-        topology.transform = pbf.readMessage(readTransformField, {scale: [], translate: []});
-        transformed = true;
-    }
-    else if (tag === 2) names.push(pbf.readString());
-    else if (tag === 3) topology.objects[names.shift()] = pbf.readMessage(readGeometryField, {});
-
-    else if (tag === 4) lengths = pbf.readPackedVarint();
-    else if (tag === 5) topology.arcs = readArcs(pbf);
-
-    else if (tag === 13) values.push(readValue(pbf));
-    else if (tag === 15) readProps(pbf, topology);
 }
 
 function readFeatureCollectionField(tag, obj, pbf) {
@@ -100,22 +72,16 @@ function readGeometryField(tag, geom, pbf) {
         geom.geometries = geom.geometries || [];
         geom.geometries.push(readGeometry(pbf, {}));
     }
-
-    else if (tag === 11) geom.id = pbf.readString();
-    else if (tag === 12) geom.id = pbf.readSVarint();
-
     else if (tag === 13) values.push(readValue(pbf));
-    else if (tag === 14) geom.properties = readProps(pbf, {});
     else if (tag === 15) readProps(pbf, geom);
 }
 
 function readCoords(geom, pbf, type) {
-    var coordsOrArcs = isTopo ? 'arcs' : 'coordinates';
     if (type === 'Point') geom.coordinates = readPoint(pbf);
     else if (type === 'MultiPoint') geom.coordinates = readLine(pbf, true);
-    else if (type === 'LineString') geom[coordsOrArcs] = readLine(pbf);
-    else if (type === 'MultiLineString' || type === 'Polygon') geom[coordsOrArcs] = readMultiLine(pbf);
-    else if (type === 'MultiPolygon') geom[coordsOrArcs] = readMultiPolygon(pbf);
+    else if (type === 'LineString') geom.coordinates = readLine(pbf);
+    else if (type === 'MultiLineString' || type === 'Polygon') geom.coordinates = readMultiLine(pbf);
+    else if (type === 'MultiPolygon') geom.coordinates = readMultiPolygon(pbf);
 }
 
 function readValue(pbf) {
@@ -143,46 +109,29 @@ function readProps(pbf, props) {
     return props;
 }
 
-function readTransformField(tag, tr, pbf) {
-    if (tag === 1) tr.scale[0] = pbf.readDouble();
-    else if (tag === 2) tr.scale[1] = pbf.readDouble();
-    else if (tag === 3) tr.translate[0] = pbf.readDouble();
-    else if (tag === 4) tr.translate[1] = pbf.readDouble();
-}
-
 function readPoint(pbf) {
     var end = pbf.readVarint() + pbf.pos,
         coords = [];
-    while (pbf.pos < end) coords.push(transformCoord(pbf.readSVarint()));
+    while (pbf.pos < end) coords.push(pbf.readSVarint() / e);
     return coords;
 }
 
-function readLinePart(pbf, end, len, isMultiPoint) {
+function readLinePart(pbf, end, len) {
     var i = 0,
         coords = [],
         p, d;
 
-    if (isTopo && !isMultiPoint) {
-        p = 0;
-        while (len ? i < len : pbf.pos < end) {
-            p += pbf.readSVarint();
-            coords.push(p);
-            i++;
-        }
+    var prevP = [];
+    for (d = 0; d < dim; d++) prevP[d] = 0;
 
-    } else {
-        var prevP = [];
-        for (d = 0; d < dim; d++) prevP[d] = 0;
-
-        while (len ? i < len : pbf.pos < end) {
-            p = [];
-            for (d = 0; d < dim; d++) {
-                prevP[d] += pbf.readSVarint();
-                p[d] = transformCoord(prevP[d]);
-            }
-            coords.push(p);
-            i++;
+    while (len ? i < len : pbf.pos < end) {
+        p = [];
+        for (d = 0; d < dim; d++) {
+            prevP[d] += pbf.readSVarint();
+            p[d] = prevP[d] / e;
         }
+        coords.push(p);
+        i++;
     }
 
     return coords;
@@ -216,25 +165,4 @@ function readMultiPolygon(pbf) {
     }
     lengths = null;
     return coords;
-}
-
-function readArcs(pbf) {
-    var lines = [],
-        end = pbf.readVarint() + pbf.pos;
-
-    for (var i = 0; i < lengths.length; i++) {
-        var ring = [];
-        for (var j = 0; j < lengths[i]; j++) {
-            var p = [];
-            for (var d = 0; d < dim && pbf.pos < end; d++) p[d] = transformCoord(pbf.readSVarint());
-            ring.push(p);
-        }
-        lines.push(ring);
-    }
-
-    return lines;
-}
-
-function transformCoord(x) {
-    return transformed ? x : x / e;
 }
