@@ -205,7 +205,8 @@ function writeProps(props, pbf, isCustom) {
                        key === 'geometries' || key === 'properties') continue;
         }
         pbf.writeMessage(13, writeValue, props[key]);
-        indexes.push(keys[key], valueIndex++);
+        indexes.push(keys[key]);
+        indexes.push(valueIndex++);
     }
     pbf.writePackedVarint(isCustom ? 15 : 14, indexes);
 }
