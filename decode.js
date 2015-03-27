@@ -80,7 +80,8 @@ function readCoords(geom, pbf, type) {
     if (type === 'Point') geom.coordinates = readPoint(pbf);
     else if (type === 'MultiPoint') geom.coordinates = readLine(pbf, true);
     else if (type === 'LineString') geom.coordinates = readLine(pbf);
-    else if (type === 'MultiLineString' || type === 'Polygon') geom.coordinates = readMultiLine(pbf);
+    else if (type === 'MultiLineString') geom.coordinates = readMultiLine(pbf);
+    else if (type === 'Polygon') geom.coordinates = readMultiLine(pbf, true);
     else if (type === 'MultiPolygon') geom.coordinates = readMultiPolygon(pbf);
 }
 
@@ -116,7 +117,7 @@ function readPoint(pbf) {
     return coords;
 }
 
-function readLinePart(pbf, end, len) {
+function readLinePart(pbf, end, len, closed) {
     var i = 0,
         coords = [],
         p, d;
@@ -133,33 +134,34 @@ function readLinePart(pbf, end, len) {
         coords.push(p);
         i++;
     }
+    if (closed) coords.push(coords[0]);
 
     return coords;
 }
 
-function readLine(pbf, isMultiPoint) {
-    return readLinePart(pbf, pbf.readVarint() + pbf.pos, null, isMultiPoint);
+function readLine(pbf) {
+    return readLinePart(pbf, pbf.readVarint() + pbf.pos);
 }
 
-function readMultiLine(pbf) {
+function readMultiLine(pbf, closed) {
     var end = pbf.readVarint() + pbf.pos;
-    if (!lengths) return [readLinePart(pbf, end)];
+    if (!lengths) return [readLinePart(pbf, end, null, closed)];
 
     var coords = [];
-    for (var i = 0; i < lengths.length; i++) coords.push(readLinePart(pbf, end, lengths[i]));
+    for (var i = 0; i < lengths.length; i++) coords.push(readLinePart(pbf, end, lengths[i], closed));
     lengths = null;
     return coords;
 }
 
 function readMultiPolygon(pbf) {
     var end = pbf.readVarint() + pbf.pos;
-    if (!lengths) return [[readLinePart(pbf, end)]];
+    if (!lengths) return [[readLinePart(pbf, end, null, true)]];
 
     var coords = [];
     var j = 1;
     for (var i = 0; i < lengths[0]; i++) {
         var rings = [];
-        for (var k = 0; k < lengths[j]; k++) rings.push(readLinePart(pbf, end, lengths[j + 1 + k]));
+        for (var k = 0; k < lengths[j]; k++) rings.push(readLinePart(pbf, end, lengths[j + 1 + k], true));
         j += lengths[j] + 1;
         coords.push(rings);
     }

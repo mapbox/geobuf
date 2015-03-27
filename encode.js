@@ -122,7 +122,8 @@ function writeGeometry(geom, pbf) {
     if (geom.type === 'Point') writePoint(coords, pbf);
     else if (geom.type === 'MultiPoint') writeLine(coords, pbf, true);
     else if (geom.type === 'LineString') writeLine(coords, pbf);
-    if (geom.type === 'MultiLineString' || geom.type === 'Polygon') writeMultiLine(coords, pbf);
+    else if (geom.type === 'MultiLineString') writeMultiLine(coords, pbf);
+    else if (geom.type === 'Polygon') writeMultiLine(coords, pbf, true);
     else if (geom.type === 'MultiPolygon') writeMultiPolygon(coords, pbf);
     else if (geom.type === 'GeometryCollection') {
         for (var i = 0; i < geom.geometries.length; i++) pbf.writeMessage(4, writeGeometry, geom.geometries[i]);
@@ -171,23 +172,23 @@ function writePoint(point, pbf) {
     pbf.writePackedSVarint(3, coords);
 }
 
-function writeLine(line, pbf, isMultiPoint) {
+function writeLine(line, pbf) {
     var coords = [];
-    populateLine(coords, line, isMultiPoint);
+    populateLine(coords, line);
     pbf.writePackedSVarint(3, coords);
 }
 
-function writeMultiLine(lines, pbf) {
+function writeMultiLine(lines, pbf, closed) {
     var len = lines.length,
         i;
     if (len !== 1) {
         var lengths = [];
-        for (i = 0; i < len; i++) lengths.push(lines[i].length);
+        for (i = 0; i < len; i++) lengths.push(lines[i].length - (closed ? 1 : 0));
         pbf.writePackedVarint(2, lengths);
         // TODO faster with custom writeMessage?
     }
     var coords = [];
-    for (i = 0; i < len; i++) populateLine(coords, lines[i]);
+    for (i = 0; i < len; i++) populateLine(coords, lines[i], closed);
     pbf.writePackedSVarint(3, coords);
 }
 
@@ -198,21 +199,22 @@ function writeMultiPolygon(polygons, pbf) {
         var lengths = [len];
         for (i = 0; i < len; i++) {
             lengths.push(polygons[i].length);
-            for (j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length);
+            for (j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length - 1);
         }
         pbf.writePackedVarint(2, lengths);
     }
 
     var coords = [];
     for (i = 0; i < len; i++) {
-        for (j = 0; j < polygons[i].length; j++) populateLine(coords, polygons[i][j]);
+        for (j = 0; j < polygons[i].length; j++) populateLine(coords, polygons[i][j], true);
     }
     pbf.writePackedSVarint(3, coords);
 }
 
-function populateLine(coords, line) {
-    var i, j;
-    for (i = 0; i < line.length; i++) {
+function populateLine(coords, line, closed) {
+    var i, j,
+        len = line.length - (closed ? 1 : 0);
+    for (i = 0; i < len; i++) {
         for (j = 0; j < dim; j++) coords.push(Math.round((line[i][j] - (i ? line[i - 1][j] : 0)) * e));
     }
 }
