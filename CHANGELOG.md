@@ -3,6 +3,7 @@
 ### master
 
 - **Breaking:** removed TopoJSON support. It will likely branch out into a separate repo/project.
+- Fixed a bug with encoding single-ring single-polygon multipolygon.
 
 ### 1.0.1 (Jan 13, 2015)
 

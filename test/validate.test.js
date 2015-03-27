@@ -13,6 +13,7 @@ for (var name in geojsonFixtures) {
 }
 
 test('roundtrip custom properties', roundtripTest(getJSON('props.json')));
+test('roundtrip single-ring MultiPolygon', roundtripTest(getJSON('single-multipoly.json')));
 
 function roundtripTest(geojson) {
     return function (t) {

@@ -67,7 +67,6 @@ function analyze(obj) {
             for (i = 0; i < obj.coordinates.length; i++) analyzeMultiLine(obj.coordinates[i]);
         }
 
-        for (key in obj.properties) saveKey(key);
         for (key in obj) {
             if (key !== 'type' && key !== 'id' && key !== 'coordinates' && key !== 'arcs' &&
                 key !== 'geometries' && key !== 'properties') saveKey(key);
@@ -195,7 +194,7 @@ function writeMultiLine(lines, pbf) {
 function writeMultiPolygon(polygons, pbf) {
     var len = polygons.length,
         i, j;
-    if (len !== 1 || polygons[0].length !== 1 || polygons[0][0].length !== 1) {
+    if (len !== 1 || polygons[0].length !== 1) {
         var lengths = [len];
         for (i = 0; i < len; i++) {
             lengths.push(polygons[i].length);
