@@ -102,7 +102,7 @@ On some files, this step may take 40 times more time than actual decoding.
 ## See Also
 
 * [geojsonp](https://github.com/springmeyer/geojsonp) &mdash; the prototype that led to this project
-* [pygeobuf](https://github.com/mapbox/pygeobuf) &mdsah; Python implementation of Geobuf
+* [pygeobuf](https://github.com/mapbox/pygeobuf) &mdash; Python implementation of Geobuf
 * [twkb](https://github.com/TWKB/Specification) &mdash; a geospatial binary encoding that doesn't support topology
 and doesn't encode any non-geographic properties besides `id`
 * [vector-tile-spec](https://github.com/mapbox/vector-tile-spec)
