@@ -5,14 +5,17 @@ module.exports = encode;
 var keys, keysNum, dim, e,
     maxPrecision = 1e6;
 
-var geometryTypes = {
+var objTypes = {
     'Point': 0,
     'MultiPoint': 1,
     'LineString': 2,
     'MultiLineString': 3,
     'Polygon': 4,
     'MultiPolygon': 5,
-    'GeometryCollection': 6
+    'GeometryCollection': 6,
+    'Geometry': 7,
+    'Feature': 8,
+    'FeatureCollection': 9
 };
 
 function encode(obj, pbf) {
@@ -22,19 +25,10 @@ function encode(obj, pbf) {
     e = 1;
 
     analyze(obj);
-
     e = Math.min(e, maxPrecision);
-    var precision = Math.ceil(Math.log(e) / Math.LN10);
 
-    var keysArr = Object.keys(keys);
-
-    for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
-    if (dim !== 2) pbf.writeVarintField(2, dim);
-    if (precision !== 6) pbf.writeVarintField(3, precision);
-
-    if (obj.type === 'FeatureCollection') pbf.writeMessage(4, writeFeatureCollection, obj);
-    else if (obj.type === 'Feature') pbf.writeMessage(5, writeFeature, obj);
-    else pbf.writeMessage(6, writeGeometry, obj);
+    pbf.writeRawMessage(writeHeader);
+    writeObjects(obj, pbf);
 
     keys = null;
 
@@ -95,41 +89,49 @@ function saveKey(key) {
     if (keys[key] === undefined) keys[key] = keysNum++;
 }
 
-function writeFeatureCollection(obj, pbf) {
-    for (var i = 0; i < obj.features.length; i++) {
-        pbf.writeMessage(1, writeFeature, obj.features[i]);
+function writeHeader(obj, pbf) {
+    var precision = Math.ceil(Math.log(e) / Math.LN10);
+
+    for (var id in keys) pbf.writeStringField(1, id);
+    if (dim !== 2) pbf.writeVarintField(2, dim);
+    if (precision !== 6) pbf.writeVarintField(3, precision);
+}
+
+function writeObjects(obj, pbf) {
+    pbf.writeRawMessage(writeObject, obj);
+
+    var i;
+
+    if (obj.type === 'FeatureCollection') {
+        for (i = 0; i < obj.features.length; i++) writeObjects(obj.features[i], pbf);
+
+    } else if (obj.type === 'Feature') {
+        if (obj.geometry) writeObjects(obj.geometry, pbf);
+
+    } else if (obj.type === 'GeometryCollection' && obj.geometries) {
+        for (i = 0; i < obj.geometries.length; i++) writeObjects(obj.geometries[i], pbf);
     }
+}
+
+function writeObject(obj, pbf) {
+    pbf.writeVarintField(1, objTypes[obj.type]);
+
+    var coords = obj.coordinates;
+
+    if (obj.type === 'Point') writePoint(coords, pbf);
+    else if (obj.type === 'MultiPoint') writeLine(coords, pbf, true);
+    else if (obj.type === 'LineString') writeLine(coords, pbf);
+    else if (obj.type === 'MultiLineString') writeMultiLine(coords, pbf);
+    else if (obj.type === 'Polygon') writeMultiLine(coords, pbf, true);
+    else if (obj.type === 'MultiPolygon') writeMultiPolygon(coords, pbf);
+
+    if (obj.id !== undefined) {
+        if (typeof obj.id === 'number' && obj.id % 1 === 0) pbf.writeSVarintField(12, obj.id);
+        else pbf.writeStringField(11, obj.id);
+    }
+
+    if (obj.properties) writeProps(obj.properties, pbf);
     writeProps(obj, pbf, true);
-}
-
-function writeFeature(feature, pbf) {
-    pbf.writeMessage(1, writeGeometry, feature.geometry);
-
-    if (feature.id !== undefined) {
-        if (typeof feature.id === 'number' && feature.id % 1 === 0) pbf.writeSVarintField(12, feature.id);
-        else pbf.writeStringField(11, feature.id);
-    }
-
-    if (feature.properties) writeProps(feature.properties, pbf);
-    writeProps(feature, pbf, true);
-}
-
-function writeGeometry(geom, pbf) {
-    pbf.writeVarintField(1, geometryTypes[geom.type]);
-
-    var coords = geom.coordinates;
-
-    if (geom.type === 'Point') writePoint(coords, pbf);
-    else if (geom.type === 'MultiPoint') writeLine(coords, pbf, true);
-    else if (geom.type === 'LineString') writeLine(coords, pbf);
-    else if (geom.type === 'MultiLineString') writeMultiLine(coords, pbf);
-    else if (geom.type === 'Polygon') writeMultiLine(coords, pbf, true);
-    else if (geom.type === 'MultiPolygon') writeMultiPolygon(coords, pbf);
-    else if (geom.type === 'GeometryCollection') {
-        for (var i = 0; i < geom.geometries.length; i++) pbf.writeMessage(4, writeGeometry, geom.geometries[i]);
-    }
-
-    writeProps(geom, pbf, true);
 }
 
 function writeProps(props, pbf, isCustom) {
