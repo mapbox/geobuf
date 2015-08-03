@@ -14,9 +14,8 @@ var objTypes = {
     'Polygon': 4,
     'MultiPolygon': 5,
     'GeometryCollection': 6,
-    'Geometry': 7,
-    'Feature': 8,
-    'FeatureCollection': 9
+    'Feature': 7,
+    'FeatureCollection': 8
 };
 
 function encode(obj, pbf) {
@@ -112,10 +111,9 @@ function writeObject(obj, pbf) {
     if (!paramsWritten) {
         var precision = Math.ceil(Math.log(e) / Math.LN10);
 
-        pbf.writeBooleanField(2, true);
-        pbf.writeVarintField(3, dim);
-        pbf.writeVarintField(4, precision);
-        for (var id in keys) pbf.writeStringField(5, id);
+        pbf.writeVarintField(2, dim);
+        pbf.writeVarintField(3, precision);
+        for (var id in keys) pbf.writeStringField(4, id);
 
         paramsWritten = true;
     }

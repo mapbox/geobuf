@@ -1,12 +1,11 @@
 message Object {
     required ObjectType type = 1;
 
-    optional bool is_root = 2;
+    optional uint32 dimensions = 2; // max coordinate dimensions
+    optional uint32 precision = 3; // number of digits after decimal point for coordinates
+    repeated string keys = 4; // global array of unique keys
 
-    optional uint32 dimensions = 3; // max coordinate dimensions
-    optional uint32 precision = 4; // number of digits after decimal point for coordinates
-    repeated string keys = 5; // arrays of unique keys
-
+    // geometry coordinates (where the bulk of the size goes)
     repeated uint32 lengths = 6 [packed = true]; // coordinate structure in lengths
     repeated sint64 coords = 7 [packed = true]; // delta-encoded integer values
 
