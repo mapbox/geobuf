@@ -55,9 +55,9 @@ function decode(pbf) {
 
 function readObjectField(tag, obj, pbf) {
     if (tag === 1) obj.type = objTypes[pbf.readVarint()];
-    else if (tag === 2) dim = pbf.readVarint();
-    else if (tag === 3) e = Math.pow(10, pbf.readVarint());
-    else if (tag === 4) keys.push(pbf.readString());
+    else if (tag === 3) dim = pbf.readVarint();
+    else if (tag === 4) e = Math.pow(10, pbf.readVarint());
+    else if (tag === 5) keys.push(pbf.readString());
 
     else if (tag === 6) lengths = pbf.readPackedVarint();
     else if (tag === 7) readCoords(obj, pbf, obj.type);

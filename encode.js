@@ -111,9 +111,10 @@ function writeObject(obj, pbf) {
     if (!paramsWritten) {
         var precision = Math.ceil(Math.log(e) / Math.LN10);
 
-        pbf.writeVarintField(2, dim);
-        pbf.writeVarintField(3, precision);
-        for (var id in keys) pbf.writeStringField(4, id);
+        pbf.writeBooleanField(2, true);
+        if (dim !== 2) pbf.writeVarintField(3, dim);
+        if (precision !== 6) pbf.writeVarintField(4, precision);
+        for (var id in keys) pbf.writeStringField(5, id);
 
         paramsWritten = true;
     }

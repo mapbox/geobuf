@@ -1,9 +1,12 @@
 message Object {
     required ObjectType type = 1;
 
-    optional uint32 dimensions = 2; // max coordinate dimensions
-    optional uint32 precision = 3; // number of digits after decimal point for coordinates
-    repeated string keys = 4; // global array of unique keys
+    optional bool is_top_level = 2;
+
+    // global parameters; encoded in the top level object, with subsequent objects inheriting them
+    optional uint32 dimensions = 3 [default = 2]; // max coordinate dimensions
+    optional uint32 precision = 4 [default = 6]; // number of digits after decimal point for coordinates
+    repeated string keys = 5; // global array of unique keys
 
     // geometry coordinates (where the bulk of the size goes)
     repeated uint32 lengths = 6 [packed = true]; // coordinate structure in lengths
@@ -18,28 +21,28 @@ message Object {
 
     repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes for feature properties
     repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
-}
 
-message Value {
-    oneof value_type {
-        string string_value = 1;
-        double double_value = 2;
-        uint64 pos_int_value = 3;
-        uint64 neg_int_value = 4;
-        bool bool_value = 5;
-        string json_value = 6;
+    enum ObjectType {
+        POINT = 0;
+        MULTIPOINT = 1;
+        LINESTRING = 2;
+        MULTILINESTRING = 3;
+        POLYGON = 4;
+        MULTIPOLYGON = 5;
+        GEOMETRYCOLLECTION = 6;
+
+        FEATURE = 7;
+        FEATURECOLLECTION = 8;
     }
-}
 
-enum ObjectType {
-    POINT = 0;
-    MULTIPOINT = 1;
-    LINESTRING = 2;
-    MULTILINESTRING = 3;
-    POLYGON = 4;
-    MULTIPOLYGON = 5;
-    GEOMETRYCOLLECTION = 6;
-
-    FEATURE = 7;
-    FEATURECOLLECTION = 8;
+    message Value {
+        oneof value_type {
+            string string_value = 1;
+            double double_value = 2;
+            uint64 pos_int_value = 3;
+            uint64 neg_int_value = 4;
+            bool bool_value = 5;
+            string json_value = 6;
+        }
+    }
 }
