@@ -3,6 +3,7 @@
 module.exports = encode;
 
 var keys, keysNum, dim, e,
+    paramsWritten = false,
     maxPrecision = 1e6;
 
 var objTypes = {
@@ -27,10 +28,10 @@ function encode(obj, pbf) {
     analyze(obj);
     e = Math.min(e, maxPrecision);
 
-    pbf.writeRawMessage(writeHeader);
     writeObjects(obj, pbf);
 
     keys = null;
+    paramsWritten = false;
 
     return pbf.finish();
 }
@@ -89,14 +90,6 @@ function saveKey(key) {
     if (keys[key] === undefined) keys[key] = keysNum++;
 }
 
-function writeHeader(obj, pbf) {
-    var precision = Math.ceil(Math.log(e) / Math.LN10);
-
-    for (var id in keys) pbf.writeStringField(1, id);
-    if (dim !== 2) pbf.writeVarintField(2, dim);
-    if (precision !== 6) pbf.writeVarintField(3, precision);
-}
-
 function writeObjects(obj, pbf) {
     pbf.writeRawMessage(writeObject, obj);
 
@@ -116,6 +109,17 @@ function writeObjects(obj, pbf) {
 function writeObject(obj, pbf) {
     pbf.writeVarintField(1, objTypes[obj.type]);
 
+    if (!paramsWritten) {
+        var precision = Math.ceil(Math.log(e) / Math.LN10);
+
+        pbf.writeBooleanField(2, true);
+        pbf.writeVarintField(3, dim);
+        pbf.writeVarintField(4, precision);
+        for (var id in keys) pbf.writeStringField(5, id);
+
+        paramsWritten = true;
+    }
+
     var coords = obj.coordinates;
 
     if (obj.type === 'Point') writePoint(coords, pbf);
@@ -126,8 +130,8 @@ function writeObject(obj, pbf) {
     else if (obj.type === 'MultiPolygon') writeMultiPolygon(coords, pbf);
 
     if (obj.id !== undefined) {
-        if (typeof obj.id === 'number' && obj.id % 1 === 0) pbf.writeSVarintField(12, obj.id);
-        else pbf.writeStringField(11, obj.id);
+        if (typeof obj.id === 'number' && obj.id % 1 === 0) pbf.writeSVarintField(9, obj.id);
+        else pbf.writeStringField(8, obj.id);
     }
 
     if (obj.properties) writeProps(obj.properties, pbf);
@@ -171,13 +175,13 @@ function writeValue(value, pbf) {
 function writePoint(point, pbf) {
     var coords = [];
     for (var i = 0; i < dim; i++) coords.push(Math.round(point[i] * e));
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function writeLine(line, pbf) {
     var coords = [];
     populateLine(coords, line);
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function writeMultiLine(lines, pbf, closed) {
@@ -186,12 +190,12 @@ function writeMultiLine(lines, pbf, closed) {
     if (len !== 1) {
         var lengths = [];
         for (i = 0; i < len; i++) lengths.push(lines[i].length - (closed ? 1 : 0));
-        pbf.writePackedVarint(2, lengths);
+        pbf.writePackedVarint(6, lengths);
         // TODO faster with custom writeMessage?
     }
     var coords = [];
     for (i = 0; i < len; i++) populateLine(coords, lines[i], closed);
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function writeMultiPolygon(polygons, pbf) {
@@ -203,14 +207,14 @@ function writeMultiPolygon(polygons, pbf) {
             lengths.push(polygons[i].length);
             for (j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length - 1);
         }
-        pbf.writePackedVarint(2, lengths);
+        pbf.writePackedVarint(6, lengths);
     }
 
     var coords = [];
     for (i = 0; i < len; i++) {
         for (j = 0; j < polygons[i].length; j++) populateLine(coords, polygons[i][j], true);
     }
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function populateLine(coords, line, closed) {

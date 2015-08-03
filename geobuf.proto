@@ -1,37 +1,24 @@
-message Header {
-    repeated string keys = 1; // global arrays of unique keys
-    optional uint32 dimensions = 2 [default = 2]; // max coordinate dimensions
-    optional uint32 precision = 3 [default = 6]; // number of digits after decimal point for coordinates
-}
-
 message Object {
-    required Type type = 1;
+    required ObjectType type = 1;
 
-    repeated uint32 lengths = 2 [packed = true]; // coordinate structure in lengths
-    repeated sint64 coords = 3 [packed = true]; // delta-encoded integer values
+    optional bool is_root = 2;
+
+    optional uint32 dimensions = 3; // max coordinate dimensions
+    optional uint32 precision = 4; // number of digits after decimal point for coordinates
+    repeated string keys = 5; // arrays of unique keys
+
+    repeated uint32 lengths = 6 [packed = true]; // coordinate structure in lengths
+    repeated sint64 coords = 7 [packed = true]; // delta-encoded integer values
 
     oneof id_type {
-        string id = 11;
-        sint64 int_id = 12;
+        string id = 8;
+        sint64 int_id = 9;
     }
 
     repeated Value values = 13; // unique values
-    repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes
+
+    repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes for feature properties
     repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
-
-    enum Type {
-        POINT = 0;
-        MULTIPOINT = 1;
-        LINESTRING = 2;
-        MULTILINESTRING = 3;
-        POLYGON = 4;
-        MULTIPOLYGON = 5;
-        GEOMETRYCOLLECTION = 6;
-
-        GEOMETRY = 7;
-        FEATURE = 8;
-        FEATURECOLLECTION = 9;
-    }
 }
 
 message Value {
@@ -43,4 +30,17 @@ message Value {
         bool bool_value = 5;
         string json_value = 6;
     }
+}
+
+enum ObjectType {
+    POINT = 0;
+    MULTIPOINT = 1;
+    LINESTRING = 2;
+    MULTILINESTRING = 3;
+    POLYGON = 4;
+    MULTIPOLYGON = 5;
+    GEOMETRYCOLLECTION = 6;
+
+    FEATURE = 7;
+    FEATURECOLLECTION = 8;
 }
