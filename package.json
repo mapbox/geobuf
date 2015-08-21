@@ -36,12 +36,14 @@
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
     "benchmark": "~1.0.0",
+    "browserify": "^11.0.1",
     "coveralls": "~2.11.2",
     "eslint": "^0.17.1",
     "geojson-fixtures": "0.6.1",
     "istanbul": "~0.3.11",
     "mkdirp": "^0.5.0",
-    "tap": "~0.7.1"
+    "tap": "~0.7.1",
+    "uglifyjs": "^2.4.10"
   },
   "dependencies": {
     "concat-stream": "^1.4.7",
