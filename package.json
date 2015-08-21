@@ -13,7 +13,9 @@
     "cov": "istanbul cover test/*.js",
     "coveralls": "istanbul cover test/*.js && coveralls < ./coverage/lcov.info",
     "build-min": "mkdirp dist && browserify index.js -s geobuf | uglifyjs -c warnings=false -m > dist/geobuf.js",
-    "build-dev": "mkdirp dist && browserify index.js -d -s geobuf > dist/geobuf-dev.js"
+    "build-dev": "mkdirp dist && browserify index.js -d -s geobuf > dist/geobuf-dev.js",
+    "build": "npm run build-min && npm run build-dev",
+    "prepublish": "in-publish && npm run build || not-in-publish"
   },
   "repository": {
     "type": "git",
@@ -36,12 +38,15 @@
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
     "benchmark": "~1.0.0",
+    "browserify": "^11.0.1",
     "coveralls": "~2.11.2",
     "eslint": "^0.17.1",
     "geojson-fixtures": "0.6.1",
+    "in-publish": "^2.0.0",
     "istanbul": "~0.3.11",
     "mkdirp": "^0.5.0",
-    "tap": "~0.7.1"
+    "tap": "~0.7.1",
+    "uglifyjs": "^2.4.10"
   },
   "dependencies": {
     "concat-stream": "^1.4.7",
