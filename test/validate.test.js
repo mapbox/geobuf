@@ -31,7 +31,7 @@ test('roundtrip a line with potential accumulating error', function (t) {
     // line of 0.00000049 * 40 = 0.0000196 over the full length.
     var feature = {
         'type': 'MultiPolygon',
-        'coordinates': [[[ ]]]
+        'coordinates': [[[]]]
     };
     var points = 40;
     // X coordinates [0, 1.00000049,  2.00000098,  3.00000147,  4.00000196, ...,
@@ -54,7 +54,7 @@ test('roundtrip a circle with potential accumulating error', function (t) {
     // Generate an approximate circle with 16 points around.
     var feature = {
         'type': 'MultiPolygon',
-        'coordinates': [[[ ]]]
+        'coordinates': [[[]]]
     };
     var points = 16;
     for (var i = 0; i <= points; i++) {
