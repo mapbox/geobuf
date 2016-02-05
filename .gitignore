@@ -2,3 +2,4 @@ dist
 coverage
 *.log
 node_modules
+debug
