@@ -1,10 +1,11 @@
 ## Geobuf Changelog
 
-### master
+### 2.0.0
 
 - **Breaking:** removed TopoJSON support. It will likely branch out into a separate repo/project.
 - **Breaking:** changed encoding to not include the closing point of a polygon ring.
 - Fixed a bug with encoding single-ring single-polygon multipolygon.
+- Fixed a bug where floating point errors could sometimes accumulate, preventing proper roundtrip.
 
 ### 1.0.1 (Jan 13, 2015)
 
