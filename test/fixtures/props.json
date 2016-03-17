@@ -9,6 +9,9 @@
     },
     "type": "FeatureCollection",
     "foo": "bar",
+    "properties": {
+        "name": "foobar"
+    },
     "features": [{
         "type": "Feature",
         "id": 123,

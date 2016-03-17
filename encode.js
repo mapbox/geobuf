@@ -46,31 +46,24 @@ function analyze(obj) {
 
     if (obj.type === 'FeatureCollection') {
         for (i = 0; i < obj.features.length; i++) analyze(obj.features[i]);
-        for (key in obj) if (key !== 'type' && key !== 'features') saveKey(key);
 
     } else if (obj.type === 'Feature') {
         analyze(obj.geometry);
         for (key in obj.properties) saveKey(key);
-        for (key in obj) {
-            if (key !== 'type' && key !== 'id' && key !== 'properties' && key !== 'geometry') saveKey(key);
-        }
 
-    } else {
-        if (obj.type === 'Point') analyzePoint(obj.coordinates);
-        else if (obj.type === 'MultiPoint') analyzePoints(obj.coordinates);
-        else if (obj.type === 'GeometryCollection') {
-            for (i = 0; i < obj.geometries.length; i++) analyze(obj.geometries[i]);
-        }
-        else if (obj.type === 'LineString') analyzePoints(obj.coordinates);
-        else if (obj.type === 'Polygon' || obj.type === 'MultiLineString') analyzeMultiLine(obj.coordinates);
-        else if (obj.type === 'MultiPolygon') {
-            for (i = 0; i < obj.coordinates.length; i++) analyzeMultiLine(obj.coordinates[i]);
-        }
+    } else if (obj.type === 'Point') analyzePoint(obj.coordinates);
+    else if (obj.type === 'MultiPoint') analyzePoints(obj.coordinates);
+    else if (obj.type === 'GeometryCollection') {
+        for (i = 0; i < obj.geometries.length; i++) analyze(obj.geometries[i]);
+    }
+    else if (obj.type === 'LineString') analyzePoints(obj.coordinates);
+    else if (obj.type === 'Polygon' || obj.type === 'MultiLineString') analyzeMultiLine(obj.coordinates);
+    else if (obj.type === 'MultiPolygon') {
+        for (i = 0; i < obj.coordinates.length; i++) analyzeMultiLine(obj.coordinates[i]);
+    }
 
-        for (key in obj) {
-            if (key !== 'type' && key !== 'id' && key !== 'coordinates' && key !== 'arcs' &&
-                key !== 'geometries' && key !== 'properties') saveKey(key);
-        }
+    for (key in obj) {
+        if (!isSpecialKey(key, obj.type)) saveKey(key);
     }
 }
 
@@ -137,14 +130,8 @@ function writeProps(props, pbf, isCustom) {
         valueIndex = 0;
 
     for (var key in props) {
-        if (isCustom) {
-            if (key === 'type' || key === 'id' || key === 'coordinates' || key === 'arcs' ||
-                key === 'geometries' || key === 'properties') continue;
-            else if (props.type === 'FeatureCollection') {
-                if (key === 'features') continue;
-            } else if (props.type === 'Feature') {
-                if (key === 'id' || key === 'properties' || key === 'geometry') continue;
-            }
+        if (isCustom && isSpecialKey(key, props.type)) {
+            continue;
         }
         pbf.writeMessage(13, writeValue, props[key]);
         indexes.push(keys[key]);
@@ -223,4 +210,16 @@ function populateLine(coords, line, closed) {
             sum[j] += n;
         }
     }
+}
+
+function isSpecialKey(key, type) {
+    if (key === 'type') return true;
+    else if (type === 'FeatureCollection') {
+        if (key === 'features') return true;
+    } else if (type === 'Feature') {
+        if (key === 'id' || key === 'properties' || key === 'geometry') return true;
+    } else if (type === 'GeometryCollection') {
+        if (key === 'geometries') return true;
+    } else if (key === 'coordinates') return true;
+    return false;
 }
