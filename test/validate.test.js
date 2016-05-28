@@ -12,6 +12,8 @@ for (var name in geojsonFixtures) {
     test('roundtrip GeoJSON: ' + name, roundtripTest(geojsonFixtures[name]));
 }
 
+test('roundtrip issue', roundtripTest(getJSON('issue62.json')));
+
 test('roundtrip custom properties', roundtripTest(getJSON('props.json')));
 test('roundtrip single-ring MultiPolygon', roundtripTest(getJSON('single-multipoly.json')));
 
