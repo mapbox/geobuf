@@ -79,6 +79,6 @@ test('numeric properties round-trip', function(t) {
 test('can decode geobuf where numeric property is float-encoded', function(t) {
     var buf = fs.readFileSync(path.resolve(__dirname, 'fixtures', 'float-encoded.geobuf'));
     var feature = geobuf.geobufToFeature(buf);
-    t.equal(typeof feature.properties.num, 'number', 'decoded numeric property');
+    t.equal(feature.properties.num, 123456788103168, 'decoded numeric property');
     t.end();
 });
