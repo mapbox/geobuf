@@ -146,7 +146,7 @@ function _featureToGeobuf(geojson) {
         p.set('key', k);
         switch (typeof v) {
             case 'number':
-                val.set('float_value',  v);
+                val.set('double_value',  v);
                 break;
             case 'boolean':
                 val.set('bool_value',  v);
