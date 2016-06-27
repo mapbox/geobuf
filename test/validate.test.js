@@ -1,7 +1,9 @@
 var geobuf = require('../'),
     _ = require('underscore'),
     geojsonFixtures = require('geojson-fixtures'),
-    test = require('tap').test;
+    test = require('tap').test,
+    fs = require('fs'),
+    path = require('path');
 
 var feat = {
     type: 'Feature',
@@ -57,5 +59,26 @@ test('featurecollection', function(t) {
         var ex = geojsonFixtures.featurecollection[k];
         t.ok(geobuf.featureCollectionToGeobuf(ex).encode(), k);
     }
+    t.end();
+});
+
+test('numeric properties round-trip', function(t) {
+    var feature = {
+        type: 'Feature',
+        properties: { num: 123456789012345 },
+        geometry: { type: 'Point', coordinates: [0, 0] }
+    };
+
+    var buf = geobuf.featureToGeobuf(feature).toBuffer();
+    var roundtrip = geobuf.geobufToFeature(buf);
+
+    t.equal(roundtrip.properties.num, feature.properties.num, 'round-trips large numeric properties');
+    t.end();
+});
+
+test('can decode geobuf where numeric property is float-encoded', function(t) {
+    var buf = fs.readFileSync(path.resolve(__dirname, 'fixtures', 'float-encoded.geobuf'));
+    var feature = geobuf.geobufToFeature(buf);
+    t.equal(typeof feature.properties.num, 'number', 'decoded numeric property');
     t.end();
 });
