@@ -68,7 +68,12 @@ Node and Browserify:
 npm install geobuf
 ```
 
-Making a browser build:
+Browser build CDN links:
+
+- https://unpkg.com/geobuf@3.0.0/dist/geobuf.js
+- https://unpkg.com/geobuf@3.0.0/dist/geobuf-dev.js
+
+Building locally:
 
 ```bash
 npm install
