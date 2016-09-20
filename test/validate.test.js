@@ -75,7 +75,9 @@ test('roundtrip a circle with potential accumulating error', function (t) {
 
 function roundtripTest(geojson) {
     return function (t) {
-        t.same(geobuf.decode(new Pbf(geobuf.encode(geojson, new Pbf()))), geojson);
+        var buf = geobuf.encode(geojson, new Pbf());
+        var geojson2 = geobuf.decode(new Pbf(buf));
+        t.same(geojson2, geojson);
         t.end();
     };
 }

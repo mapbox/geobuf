@@ -17,7 +17,7 @@ input.pipe(concat(function(buf) {
     // console.timeEnd('JSON.stringify');
 
     // console.time('encode');
-    var buffer = encode(geojson, new Pbf());
+    var buffer = Buffer.from(encode(geojson, new Pbf()));
     // console.timeEnd('encode');
 
     process.stdout.write(buffer);
