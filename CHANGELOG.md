@@ -1,5 +1,10 @@
 ## Geobuf Changelog
 
+### 3.0.0
+
+- **Breaking**: in Node, due to upgrade to `pbf` v3, `encode` will return `UInt8Array` instead of `Buffer`. You can use `Buffer.from(arr)` to convert the result to a `Buffer`.
+- Fixed a bug where `FeatureCollection` custom `properties` object wasn't encoded.
+
 ### 2.0.0
 
 - **Breaking:** removed TopoJSON support. It will likely branch out into a separate repo/project.
