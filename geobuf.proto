@@ -1,56 +1,38 @@
-option optimize_for = LITE_RUNTIME;
+message Object {
+    required ObjectType type = 1;
 
-message Data {
-    repeated string keys = 1; // global arrays of unique keys
+    optional bool is_top_level = 2;
 
-    optional uint32 dimensions = 2 [default = 2]; // max coordinate dimensions
-    optional uint32 precision = 3 [default = 6]; // number of digits after decimal point for coordinates
+    // global parameters; encoded in the top level object, with subsequent objects inheriting them
+    optional uint32 dimensions = 3 [default = 2]; // max coordinate dimensions
+    optional uint32 precision = 4 [default = 6]; // number of digits after decimal point for coordinates
+    repeated string keys = 5; // global array of unique keys
 
-    oneof data_type {
-        FeatureCollection feature_collection = 4;
-        Feature feature = 5;
-        Geometry geometry = 6;
+    // geometry coordinates (where the bulk of the size goes)
+    repeated uint32 lengths = 6 [packed = true]; // coordinate structure in lengths
+    repeated sint64 coords = 7 [packed = true]; // delta-encoded integer values
+
+    oneof id_type {
+        string id = 8;
+        sint64 int_id = 9;
     }
 
-    message Feature {
-        required Geometry geometry = 1;
+    repeated Value values = 13; // unique values
 
-        oneof id_type {
-            string id = 11;
-            sint64 int_id = 12;
-        }
+    repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes for feature properties
+    repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
 
-        repeated Value values = 13; // unique values
-        repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes
-        repeated uint32 custom_properties = 15 [packed = true]; // arbitrary properties
-    }
+    enum ObjectType {
+        POINT = 0;
+        MULTIPOINT = 1;
+        LINESTRING = 2;
+        MULTILINESTRING = 3;
+        POLYGON = 4;
+        MULTIPOLYGON = 5;
+        GEOMETRYCOLLECTION = 6;
 
-    message Geometry {
-        required Type type = 1;
-
-        repeated uint32 lengths = 2 [packed = true]; // coordinate structure in lengths
-        repeated sint64 coords = 3 [packed = true]; // delta-encoded integer values
-        repeated Geometry geometries = 4;
-
-        repeated Value values = 13;
-        repeated uint32 custom_properties = 15 [packed = true];
-
-        enum Type {
-            POINT = 0;
-            MULTIPOINT = 1;
-            LINESTRING = 2;
-            MULTILINESTRING = 3;
-            POLYGON = 4;
-            MULTIPOLYGON = 5;
-            GEOMETRYCOLLECTION = 6;
-        }
-    }
-
-    message FeatureCollection {
-        repeated Feature features = 1;
-
-        repeated Value values = 13;
-        repeated uint32 custom_properties = 15 [packed = true];
+        FEATURE = 7;
+        FEATURECOLLECTION = 8;
     }
 
     message Value {

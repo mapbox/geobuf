@@ -4,76 +4,70 @@ module.exports = decode;
 
 var keys, values, lengths, dim, e;
 
-var geometryTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
-                      'Polygon', 'MultiPolygon', 'GeometryCollection'];
+var objTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
+                      'Polygon', 'MultiPolygon', 'GeometryCollection', 'Feature', 'FeatureCollection'];
 
 function decode(pbf) {
     dim = 2;
     e = Math.pow(10, 6);
-    lengths = null;
 
     keys = [];
     values = [];
-    var obj = pbf.readFields(readDataField, {});
-    keys = null;
 
-    return obj;
-}
+    var lastFeatureCol,
+        lastFeature,
+        lastGeometryCol;
 
-function readDataField(tag, obj, pbf) {
-    if (tag === 1) keys.push(pbf.readString());
-    else if (tag === 2) dim = pbf.readVarint();
-    else if (tag === 3) e = Math.pow(10, pbf.readVarint());
+    var root;
 
-    else if (tag === 4) readFeatureCollection(pbf, obj);
-    else if (tag === 5) readFeature(pbf, obj);
-    else if (tag === 6) readGeometry(pbf, obj);
-}
+    while (pbf.pos < pbf.length) {
+        var obj = pbf.readMessage(readObjectField, {});
+        if (!root) root = obj;
 
-function readFeatureCollection(pbf, obj) {
-    obj.type = 'FeatureCollection';
-    obj.features = [];
-    return pbf.readMessage(readFeatureCollectionField, obj);
-}
+        if (obj.type === 'FeatureCollection') {
+            obj.features = [];
 
-function readFeature(pbf, feature) {
-    feature.type = 'Feature';
-    return pbf.readMessage(readFeatureField, feature);
-}
+            lastFeatureCol = obj;
 
-function readGeometry(pbf, geom) {
-    return pbf.readMessage(readGeometryField, geom);
-}
+        } else if (obj.type === 'Feature') {
+            if (lastFeatureCol) lastFeatureCol.features.push(obj);
 
-function readFeatureCollectionField(tag, obj, pbf) {
-    if (tag === 1) obj.features.push(readFeature(pbf, {}));
+            lastGeometryCol = null;
+            lastFeature = obj;
 
-    else if (tag === 13) values.push(readValue(pbf));
-    else if (tag === 15) readProps(pbf, obj);
-}
+        } else {
+            if (lastGeometryCol) lastGeometryCol.geometries.push(obj);
+            else if (lastFeature) lastFeature.geometry = obj;
 
-function readFeatureField(tag, feature, pbf) {
-    if (tag === 1) feature.geometry = readGeometry(pbf, {});
+            if (obj.type === 'GeometryCollection') {
+                obj.geometries = [];
 
-    else if (tag === 11) feature.id = pbf.readString();
-    else if (tag === 12) feature.id = pbf.readSVarint();
-
-    else if (tag === 13) values.push(readValue(pbf));
-    else if (tag === 14) feature.properties = readProps(pbf, {});
-    else if (tag === 15) readProps(pbf, feature);
-}
-
-function readGeometryField(tag, geom, pbf) {
-    if (tag === 1) geom.type = geometryTypes[pbf.readVarint()];
-
-    else if (tag === 2) lengths = pbf.readPackedVarint();
-    else if (tag === 3) readCoords(geom, pbf, geom.type);
-    else if (tag === 4) {
-        geom.geometries = geom.geometries || [];
-        geom.geometries.push(readGeometry(pbf, {}));
+                lastGeometryCol = obj;
+            }
+        }
     }
+
+    keys = null;
+    lengths = null;
+
+    return root;
+}
+
+function readObjectField(tag, obj, pbf) {
+    if (tag === 1) obj.type = objTypes[pbf.readVarint()];
+    else if (tag === 3) dim = pbf.readVarint();
+    else if (tag === 4) e = Math.pow(10, pbf.readVarint());
+    else if (tag === 5) keys.push(pbf.readString());
+
+    else if (tag === 6) lengths = pbf.readPackedVarint();
+    else if (tag === 7) readCoords(obj, pbf, obj.type);
+
+    else if (tag === 8) obj.id = pbf.readString();
+    else if (tag === 9) obj.id = pbf.readSVarint();
+
     else if (tag === 13) values.push(readValue(pbf));
-    else if (tag === 15) readProps(pbf, geom);
+    else if (tag === 14) obj.properties = readProps(pbf, {});
+    else if (tag === 15) readProps(pbf, obj);
 }
 
 function readCoords(geom, pbf, type) {

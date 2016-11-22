@@ -35,9 +35,9 @@ it may still change as we get community feedback and discover new ways to improv
                     | normal    | gzipped
 ------------------- | --------- | --------
 us-zips.json 	    | 101.85 MB | 26.67 MB
-us-zips.pbf         | 12.24 MB  | 10.48 MB
+us-zips.pbf         | 12.2 MB   | 10.31 MB
 idaho.json          | 10.92 MB  | 2.57 MB
-idaho.pbf           | 1.37 MB   | 1.17 MB
+idaho.pbf           | 1.38 MB   | 1.18 MB
 
 ## API
 

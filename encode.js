@@ -3,16 +3,19 @@
 module.exports = encode;
 
 var keys, keysNum, dim, e,
+    paramsWritten = false,
     maxPrecision = 1e6;
 
-var geometryTypes = {
+var objTypes = {
     'Point': 0,
     'MultiPoint': 1,
     'LineString': 2,
     'MultiLineString': 3,
     'Polygon': 4,
     'MultiPolygon': 5,
-    'GeometryCollection': 6
+    'GeometryCollection': 6,
+    'Feature': 7,
+    'FeatureCollection': 8
 };
 
 function encode(obj, pbf) {
@@ -22,21 +25,12 @@ function encode(obj, pbf) {
     e = 1;
 
     analyze(obj);
-
     e = Math.min(e, maxPrecision);
-    var precision = Math.ceil(Math.log(e) / Math.LN10);
 
-    var keysArr = Object.keys(keys);
-
-    for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
-    if (dim !== 2) pbf.writeVarintField(2, dim);
-    if (precision !== 6) pbf.writeVarintField(3, precision);
-
-    if (obj.type === 'FeatureCollection') pbf.writeMessage(4, writeFeatureCollection, obj);
-    else if (obj.type === 'Feature') pbf.writeMessage(5, writeFeature, obj);
-    else pbf.writeMessage(6, writeGeometry, obj);
+    writeObjects(obj, pbf);
 
     keys = null;
+    paramsWritten = false;
 
     return pbf.finish();
 }
@@ -88,41 +82,52 @@ function saveKey(key) {
     if (keys[key] === undefined) keys[key] = keysNum++;
 }
 
-function writeFeatureCollection(obj, pbf) {
-    for (var i = 0; i < obj.features.length; i++) {
-        pbf.writeMessage(1, writeFeature, obj.features[i]);
+function writeObjects(obj, pbf) {
+    pbf.writeRawMessage(writeObject, obj);
+
+    var i;
+
+    if (obj.type === 'FeatureCollection') {
+        for (i = 0; i < obj.features.length; i++) writeObjects(obj.features[i], pbf);
+
+    } else if (obj.type === 'Feature') {
+        if (obj.geometry) writeObjects(obj.geometry, pbf);
+
+    } else if (obj.type === 'GeometryCollection' && obj.geometries) {
+        for (i = 0; i < obj.geometries.length; i++) writeObjects(obj.geometries[i], pbf);
     }
+}
+
+function writeObject(obj, pbf) {
+    pbf.writeVarintField(1, objTypes[obj.type]);
+
+    if (!paramsWritten) {
+        var precision = Math.ceil(Math.log(e) / Math.LN10);
+
+        pbf.writeBooleanField(2, true);
+        if (dim !== 2) pbf.writeVarintField(3, dim);
+        if (precision !== 6) pbf.writeVarintField(4, precision);
+        for (var id in keys) pbf.writeStringField(5, id);
+
+        paramsWritten = true;
+    }
+
+    var coords = obj.coordinates;
+
+    if (obj.type === 'Point') writePoint(coords, pbf);
+    else if (obj.type === 'MultiPoint') writeLine(coords, pbf, true);
+    else if (obj.type === 'LineString') writeLine(coords, pbf);
+    else if (obj.type === 'MultiLineString') writeMultiLine(coords, pbf);
+    else if (obj.type === 'Polygon') writeMultiLine(coords, pbf, true);
+    else if (obj.type === 'MultiPolygon') writeMultiPolygon(coords, pbf);
+
+    if (obj.id !== undefined) {
+        if (typeof obj.id === 'number' && obj.id % 1 === 0) pbf.writeSVarintField(9, obj.id);
+        else pbf.writeStringField(8, obj.id);
+    }
+
+    if (obj.properties) writeProps(obj.properties, pbf);
     writeProps(obj, pbf, true);
-}
-
-function writeFeature(feature, pbf) {
-    pbf.writeMessage(1, writeGeometry, feature.geometry);
-
-    if (feature.id !== undefined) {
-        if (typeof feature.id === 'number' && feature.id % 1 === 0) pbf.writeSVarintField(12, feature.id);
-        else pbf.writeStringField(11, feature.id);
-    }
-
-    if (feature.properties) writeProps(feature.properties, pbf);
-    writeProps(feature, pbf, true);
-}
-
-function writeGeometry(geom, pbf) {
-    pbf.writeVarintField(1, geometryTypes[geom.type]);
-
-    var coords = geom.coordinates;
-
-    if (geom.type === 'Point') writePoint(coords, pbf);
-    else if (geom.type === 'MultiPoint') writeLine(coords, pbf, true);
-    else if (geom.type === 'LineString') writeLine(coords, pbf);
-    else if (geom.type === 'MultiLineString') writeMultiLine(coords, pbf);
-    else if (geom.type === 'Polygon') writeMultiLine(coords, pbf, true);
-    else if (geom.type === 'MultiPolygon') writeMultiPolygon(coords, pbf);
-    else if (geom.type === 'GeometryCollection') {
-        for (var i = 0; i < geom.geometries.length; i++) pbf.writeMessage(4, writeGeometry, geom.geometries[i]);
-    }
-
-    writeProps(geom, pbf, true);
 }
 
 function writeProps(props, pbf, isCustom) {
@@ -156,13 +161,13 @@ function writeValue(value, pbf) {
 function writePoint(point, pbf) {
     var coords = [];
     for (var i = 0; i < dim; i++) coords.push(Math.round(point[i] * e));
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function writeLine(line, pbf) {
     var coords = [];
     populateLine(coords, line);
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function writeMultiLine(lines, pbf, closed) {
@@ -171,12 +176,12 @@ function writeMultiLine(lines, pbf, closed) {
     if (len !== 1) {
         var lengths = [];
         for (i = 0; i < len; i++) lengths.push(lines[i].length - (closed ? 1 : 0));
-        pbf.writePackedVarint(2, lengths);
+        pbf.writePackedVarint(6, lengths);
         // TODO faster with custom writeMessage?
     }
     var coords = [];
     for (i = 0; i < len; i++) populateLine(coords, lines[i], closed);
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function writeMultiPolygon(polygons, pbf) {
@@ -188,14 +193,14 @@ function writeMultiPolygon(polygons, pbf) {
             lengths.push(polygons[i].length);
             for (j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length - 1);
         }
-        pbf.writePackedVarint(2, lengths);
+        pbf.writePackedVarint(6, lengths);
     }
 
     var coords = [];
     for (i = 0; i < len; i++) {
         for (j = 0; j < polygons[i].length; j++) populateLine(coords, polygons[i][j], true);
     }
-    pbf.writePackedSVarint(3, coords);
+    pbf.writePackedSVarint(7, coords);
 }
 
 function populateLine(coords, line, closed) {
