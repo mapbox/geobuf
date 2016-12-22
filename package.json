@@ -1,5 +1,5 @@
 {
-  "name": "geobuf",
+  "name": "@mapbox/geobuf",
   "version": "3.0.0",
   "description": "Compact binary encoding for geographic data",
   "main": "index.js",
