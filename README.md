@@ -32,12 +32,10 @@ it may still change as we get community feedback and discover new ways to improv
 
 #### Sample compression sizes
 
-file                | normal    | gzipped
-------------------- | --------- | --------
-us-zips.json 	      | 101.85 MB | 26.67 MB
-us-zips.pbf         | 12.24 MB  | 10.48 MB
-idaho.json          | 10.92 MB  | 2.57 MB
-idaho.pbf           | 1.37 MB   | 1.17 MB
+Data                | JSON      | JSON (gz) | Geobuf   | Geobuf (gz)
+------------------- | --------: | --------: | -------: | ----------:
+US zip codes        | 101.85 MB | 26.67 MB  | 12.24 MB | 10.48 MB
+Idaho counties      | 10.92 MB  | 2.57 MB   | 1.37 MB  | 1.17 MB
 
 ## API
 
