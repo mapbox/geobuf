@@ -46,8 +46,8 @@ var buffer = geobuf.encode(geojson, new Pbf());
 ```
 
 Given a GeoJSON object and a [Pbf](https://github.com/mapbox/pbf) object to write to,
-returns a Geobuf as `UInt8Array` arrya of bytes.
-In Node, you can use `Buffer.from` to convert back to a buffer.
+returns a Geobuf as `UInt8Array` array of bytes.
+In Node@4.5.0 or later, you can use `Buffer.from` to convert back to a buffer.
 
 ### decode
 
