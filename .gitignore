@@ -3,3 +3,4 @@ coverage
 *.log
 node_modules
 debug
+.nyc_output

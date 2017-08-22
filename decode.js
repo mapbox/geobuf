@@ -4,8 +4,9 @@ module.exports = decode;
 
 var keys, values, lengths, dim, e;
 
-var geometryTypes = ['Point', 'MultiPoint', 'LineString', 'MultiLineString',
-                      'Polygon', 'MultiPolygon', 'GeometryCollection'];
+var geometryTypes = [
+    'Point', 'MultiPoint', 'LineString', 'MultiLineString',
+    'Polygon', 'MultiPolygon', 'GeometryCollection'];
 
 function decode(pbf) {
     dim = 2;

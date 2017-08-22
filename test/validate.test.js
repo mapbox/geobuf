@@ -60,8 +60,10 @@ test('roundtrip a circle with potential accumulating error', function (t) {
     };
     var points = 16;
     for (var i = 0; i <= points; i++) {
-        feature.coordinates[0][0].push([Math.cos(Math.PI * 2.0 * i / points),
-                                        Math.sin(Math.PI * 2.0 * i / points)]);
+        feature.coordinates[0][0].push([
+            Math.cos(Math.PI * 2.0 * i / points),
+            Math.sin(Math.PI * 2.0 * i / points)
+        ]);
     }
     var roundTripped = geobuf.decode(new Pbf(geobuf.encode(feature, new Pbf())));
     function roundCoord(z) {

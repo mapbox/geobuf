@@ -9,13 +9,13 @@
     "shp2geobuf": "bin/shp2geobuf"
   },
   "scripts": {
-    "test": "eslint *.js test/*.js && tap test/*.js",
-    "cov": "istanbul cover test/*.js",
-    "coveralls": "istanbul cover test/*.js && coveralls < ./coverage/lcov.info",
+    "pretest": "eslint *.js test/*.js",
+    "test": "tap test/*.js",
+    "cov": "tap --cov test/*.js",
     "build-min": "mkdirp dist && browserify index.js -s geobuf | uglifyjs -c warnings=false -m > dist/geobuf.js",
     "build-dev": "mkdirp dist && browserify index.js -d -s geobuf > dist/geobuf-dev.js",
-    "build": "npm run build-min && npm run build-dev",
-    "prepublish": "in-publish && npm run build || not-in-publish"
+    "build-all": "npm run build-min && npm run build-dev",
+    "prepublish": "in-publish && npm run build-all || not-in-publish"
   },
   "repository": {
     "type": "git",
@@ -39,15 +39,13 @@
   "devDependencies": {
     "benchmark": "~2.1.4",
     "browserify": "^14.4.0",
-    "coveralls": "~2.13.1",
     "eslint": "^4.5.0",
     "eslint-config-mourner": "^2.0.1",
     "geojson-fixtures": "1.0.0",
     "in-publish": "^2.0.0",
-    "istanbul": "~0.4.5",
     "mkdirp": "^0.5.1",
     "tap": "~10.7.2",
-    "uglifyjs": "^2.4.11"
+    "uglify-js": "^3.0.28"
   },
   "dependencies": {
     "concat-stream": "^1.6.0",
