@@ -55,7 +55,7 @@ In Node@4.5.0 or later, you can use `Buffer.from` to convert back to a buffer.
 var geojson = geobuf.decode(new Pbf(data));
 ```
 
-Given a [Pbf](https://github.com/mapbox/pbf) object with Geobuf data, return a GeoJSON object.
+Given a [Pbf](https://github.com/mapbox/pbf) object with Geobuf data, return a GeoJSON object. When loading Geobuf data over `XMLHttpRequest`, you need to set `responseType` to [`arraybuffer`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType).
 
 
 ## Install
