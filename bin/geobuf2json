@@ -20,5 +20,5 @@ input.pipe(concat(function(buf) {
 	// JSON.parse(data);
 	// console.timeEnd('JSON.parse');
 
-	process.stdout.write(Buffer.from(data));
+	process.stdout.write(Buffer.allocUnsafe ? Buffer.from(data) : new Buffer(data));
 }));
