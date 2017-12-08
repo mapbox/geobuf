@@ -26,7 +26,8 @@ function encode(obj, pbf) {
     e = Math.min(e, maxPrecision);
     var precision = Math.ceil(Math.log(e) / Math.LN10);
 
-    var keysArr = Object.keys(keys);
+    var keysArr = Object.keys(keys).sort(
+        function (a, b) { return keys[a] - keys[b]; });
 
     for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
     if (dim !== 2) pbf.writeVarintField(2, dim);
