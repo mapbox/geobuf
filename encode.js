@@ -16,7 +16,7 @@ var geometryTypes = {
 };
 
 function encode(obj, pbf) {
-    keys = {};
+    keys = new Map();
     keysNum = 0;
     dim = 0;
     e = 1;
@@ -26,9 +26,7 @@ function encode(obj, pbf) {
     e = Math.min(e, maxPrecision);
     var precision = Math.ceil(Math.log(e) / Math.LN10);
 
-    var keysArr = Object.keys(keys);
-
-    for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
+    for (var keyname of keys.keys()) pbf.writeStringField(1, keyname);
     if (dim !== 2) pbf.writeVarintField(2, dim);
     if (precision !== 6) pbf.writeVarintField(3, precision);
 
@@ -85,7 +83,7 @@ function analyzePoint(point) {
 }
 
 function saveKey(key) {
-    if (keys[key] === undefined) keys[key] = keysNum++;
+    if (!keys.has(key)) keys.set(key, keysNum++);
 }
 
 function writeFeatureCollection(obj, pbf) {
@@ -134,7 +132,7 @@ function writeProps(props, pbf, isCustom) {
             continue;
         }
         pbf.writeMessage(13, writeValue, props[key]);
-        indexes.push(keys[key]);
+        indexes.push(keys.get(key));
         indexes.push(valueIndex++);
     }
     pbf.writePackedVarint(isCustom ? 15 : 14, indexes);
