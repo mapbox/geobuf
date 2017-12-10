@@ -2,7 +2,7 @@
 
 module.exports = encode;
 
-var keys, keysNum, dim, e,
+var keys, keysNum, keysArr, dim, e,
     maxPrecision = 1e6;
 
 var geometryTypes = {
@@ -17,6 +17,7 @@ var geometryTypes = {
 
 function encode(obj, pbf) {
     keys = {};
+    keysArr = [];
     keysNum = 0;
     dim = 0;
     e = 1;
@@ -25,8 +26,6 @@ function encode(obj, pbf) {
 
     e = Math.min(e, maxPrecision);
     var precision = Math.ceil(Math.log(e) / Math.LN10);
-
-    var keysArr = Object.keys(keys);
 
     for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
     if (dim !== 2) pbf.writeVarintField(2, dim);
@@ -85,7 +84,10 @@ function analyzePoint(point) {
 }
 
 function saveKey(key) {
-    if (keys[key] === undefined) keys[key] = keysNum++;
+    if (keys[key] === undefined) {
+        keysArr.push(key);
+        keys[key] = keysNum++;
+    }
 }
 
 function writeFeatureCollection(obj, pbf) {
