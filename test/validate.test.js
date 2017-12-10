@@ -15,6 +15,7 @@ for (var name in geojsonFixtures) {
 test('roundtrip issue', roundtripTest(getJSON('issue62.json')));
 
 test('roundtrip custom properties', roundtripTest(getJSON('props.json')));
+test('roundtrip issue90', roundtripTest(getJSON('issue90.json')));
 test('roundtrip single-ring MultiPolygon', roundtripTest(getJSON('single-multipoly.json')));
 
 test('roundtrip valid closed polygon with high-precision coordinates', function (t) {

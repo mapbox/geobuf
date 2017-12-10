@@ -1,0 +1,13 @@
+{
+  "type": "Feature",
+  "" : "",
+  "xyz" : null,
+  "!" : {},
+  "~" : [],
+  "2" : [null],
+  "properties": { "foo" : null, "" : null, "bar" : {} },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [100.0, 0.0]
+  }
+}
