@@ -143,6 +143,8 @@ function writeProps(props, pbf, isCustom) {
 }
 
 function writeValue(value, pbf) {
+    if (value === null) return;
+
     var type = typeof value;
 
     if (type === 'string') pbf.writeStringField(1, value);
