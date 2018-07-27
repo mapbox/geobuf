@@ -5,7 +5,7 @@
 
 Geobuf is a compact binary encoding for geographic data.
 
-Geobuf provides _lossless_ compression of GeoJSON data
+Geobuf provides _nearly lossless_ compression of GeoJSON data
 into [protocol buffers](https://developers.google.com/protocol-buffers/).
 Advantages over using GeoJSON alone:
 
@@ -23,11 +23,13 @@ without the need to build in-memory representation of the whole data.
 Think of this as an attempt to design a simple, modern Shapefile successor
 that works seamlessly with GeoJSON.
 Unlike [Mapbox Vector Tiles](https://github.com/mapbox/vector-tile-spec/),
-it aims for _lossless_ compression of datasets &mdash; without tiling, projecting coordinates,
+it aims for nearly lossless compression of datasets &mdash; without tiling, projecting coordinates,
 flattening geometries or stripping properties.
 
 Note that the encoding schema is **not stable yet** &mdash;
 it may still change as we get community feedback and discover new ways to improve it.
+
+"Nearly" lossless means coordinates are encoded with precision of 6 digits after the decimal point (about 10cm).
 
 
 #### Sample compression sizes
