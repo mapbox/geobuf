@@ -38,19 +38,19 @@
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
     "benchmark": "~2.1.4",
-    "browserify": "^14.4.0",
-    "eslint": "^4.5.0",
-    "eslint-config-mourner": "^2.0.1",
+    "browserify": "^16.2.2",
+    "eslint": "^5.2.0",
+    "eslint-config-mourner": "^2.0.3",
     "geojson-fixtures": "1.0.0",
     "in-publish": "^2.0.0",
     "mkdirp": "^0.5.1",
-    "tap": "~10.7.2",
-    "uglify-js": "^3.0.28"
+    "tap": "~12.0.1",
+    "uglify-js": "^3.4.5"
   },
   "dependencies": {
-    "concat-stream": "^1.6.0",
-    "pbf": "^3.0.5",
-    "shapefile": "~0.6.5"
+    "concat-stream": "^1.6.2",
+    "pbf": "^3.1.0",
+    "shapefile": "~0.6.6"
   },
   "eslintConfig": {
     "extends": "mourner",
