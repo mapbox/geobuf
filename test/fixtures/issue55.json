@@ -1,0 +1,25 @@
+{
+"type": "FeatureCollection", "features": 
+  [{
+    "type": "Feature",
+    "properties": {"miles hiked  ": 12},
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [-1.1, 2.1],
+        [2, -999.9]
+      ]
+    }
+  },{
+    "type": "Feature",
+    "properties": {"  profit": -999.9},
+    "geometry": null
+  },{
+    "type": "Feature",
+    "properties": {"miles hiked  ": 13.1},
+    "geometry": {
+      "type": "Point",
+      "coordinates": [0.0001, -0.0001]
+    }
+  }]
+}

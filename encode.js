@@ -47,7 +47,7 @@ function analyze(obj) {
         for (i = 0; i < obj.features.length; i++) analyze(obj.features[i]);
 
     } else if (obj.type === 'Feature') {
-        analyze(obj.geometry);
+        if (obj.geometry !== null) analyze(obj.geometry);
         for (key in obj.properties) saveKey(key);
 
     } else if (obj.type === 'Point') analyzePoint(obj.coordinates);
@@ -98,7 +98,7 @@ function writeFeatureCollection(obj, pbf) {
 }
 
 function writeFeature(feature, pbf) {
-    pbf.writeMessage(1, writeGeometry, feature.geometry);
+    if (feature.geometry !== null) pbf.writeMessage(1, writeGeometry, feature.geometry);
 
     if (feature.id !== undefined) {
         if (typeof feature.id === 'number' && feature.id % 1 === 0) pbf.writeSVarintField(12, feature.id);
