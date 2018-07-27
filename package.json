@@ -21,6 +21,14 @@
     "type": "git",
     "url": "git@github.com:mapbox/geobuf.git"
   },
+  "files": [
+    "encode.js",
+    "decode.js",
+    "index.js",
+    "dist",
+    "bin",
+    "geobuf.proto"
+  ],
   "keywords": [
     "geographic",
     "data",
