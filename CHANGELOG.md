@@ -1,5 +1,11 @@
 ## Geobuf Changelog
 
+### 3.0.1
+
+- Improved encoding of `null` values.
+- Fixed handling of `null` geometries.
+- Fixed a bug with not always preserving key order in properties.
+
 ### 3.0.0
 
 - **Breaking**: in Node, due to upgrade to `pbf` v3, `encode` will return `UInt8Array` instead of `Buffer`. You can use `Buffer.from(arr)` to convert the result to a `Buffer`.
