@@ -3,7 +3,8 @@
 var encode = require('../encode'),
     Pbf = require('pbf'),
     shapefile = require('shapefile');
+    fs = require('fs'),
+    concat = require('concat-stream');
 
-shapefile.read(process.argv[2], function(err, geojson) {
-    process.stdout.write(encode(geojson, new Pbf()));
-});
+
+shapefile.read(process.argv[2], process.argv[3]);
