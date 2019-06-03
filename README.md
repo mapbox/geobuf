@@ -92,12 +92,22 @@ Installs these nifty binaries:
 
 * `geobuf2json`: turn Geobuf from `stdin` or specified file to GeoJSON on `stdout`
 * `json2geobuf`: turn GeoJSON from `stdin` or specified file to Geobuf on `stdout`
-* `shp2geobuf`: given a Shapefile filename, send Geobuf on `stdout`
+* `shp2geobuf`: given a Shapefile (.shp) filename, send Geobuf on `stdout`
 
 ```bash
 json2geobuf data.json > data.pbf
-shp2geobuf myshapefile > data.pbf
 geobuf2json data.pbf > data.json
+
+# if an optional .dbf file exists under the same basename in the 
+# same directory, it will be found automatically and included.
+shp2geobuf myshapefile.shp > data.pbf  # Example: myshapefile.dbf
+
+# Or specify the dbf location explicitly if desired:
+shp2geobuf myshapefile.shp /path/to/my_dbf_file.dbf > data.pbf
+
+# Using pipes 
+cat data.json | json2geobuf > data.pbf
+cat data.pbf | geobuf2json > data.json 
 ```
 
 Note that for big files, `geobuf2json` command can be pretty slow, but the bottleneck is not the decoding,

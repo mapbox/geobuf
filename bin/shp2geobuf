@@ -2,9 +2,47 @@
 
 var encode = require('../encode'),
     Pbf = require('pbf'),
-    shapefile = require('shapefile');
+    shapefile = require('shapefile'),
     fs = require('fs'),
-    concat = require('concat-stream');
+    path = require('path');
 
 
-shapefile.read(process.argv[2], process.argv[3]);
+var shp_path = process.argv[2];
+
+var dbf_path = process.argv[3] === undefined ?
+               path.dirname(shp_path) + '/' + path.basename(shp_path, '.shp') + '.dbf'
+               : process.argv[3];
+var shp_name = path.basename(shp_path);
+var dbf_name = path.basename(dbf_path);
+var dbf_exists = true;
+
+fs.access(shp_path, fs.F_OK, (err) => {
+  if (err) {
+    console.error('File %s does not exist!', shp_path);
+    process.exit(1);
+  }
+});
+
+// Check for associated dbf file
+fs.access(dbf_path, fs.F_OK, (err) => {
+  if (err) {
+    dbf_exists = false;
+  }
+})
+  
+
+if(dbf_exists === true)
+{
+    shapefile.read(shp_path, dbf_path).then(function(geojson){
+    var geobuf = encode(geojson, new Pbf());
+    var output_buffer = Buffer.allocUnsafe ? Buffer.from(geobuf) : new Buffer(geobuf);
+    process.stdout.write(output_buffer);
+    });
+}
+else
+{
+    shapefile.read(shp_path).then(function(geojson){
+    var geobuf = encode(geojson, new Pbf());
+    var output_buffer = Buffer.allocUnsafe ? Buffer.from(geobuf) : new Buffer(geobuf);
+    process.stdout.write(output_buffer);
+}
