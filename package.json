@@ -65,5 +65,6 @@
     "rules": {
       "brace-style": 0
     }
-  }
+  },
+  "types": "index.d.ts"
 }
