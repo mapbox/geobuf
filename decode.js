@@ -40,7 +40,7 @@ function readFeatureCollection(pbf, obj) {
 function readFeature(pbf, feature) {
     feature.type = 'Feature';
     var f = pbf.readMessage(readFeatureField, feature);
-    if (!f.hasOwnProperty('geometry')) f.geometry = null;
+    if (!('geometry' in f)) f.geometry = null;
     return f;
 }
 

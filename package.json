@@ -12,10 +12,10 @@
     "pretest": "eslint *.js test/*.js",
     "test": "tap test/*.js",
     "cov": "tap --cov test/*.js",
-    "build-min": "mkdirp dist && browserify index.js -s geobuf | uglifyjs -c warnings=false -m > dist/geobuf.js",
+    "build-min": "mkdirp dist && browserify index.js -s geobuf | uglifyjs -c -m > dist/geobuf.js",
     "build-dev": "mkdirp dist && browserify index.js -d -s geobuf > dist/geobuf-dev.js",
     "build-all": "npm run build-min && npm run build-dev",
-    "prepublish": "in-publish && npm run build-all || not-in-publish"
+    "prepare": "npm run build-all"
   },
   "repository": {
     "type": "git",
@@ -46,18 +46,17 @@
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
     "benchmark": "~2.1.4",
-    "browserify": "^16.2.2",
-    "eslint": "^5.2.0",
+    "browserify": "^16.5.0",
+    "eslint": "^6.8.0",
     "eslint-config-mourner": "^2.0.3",
     "geojson-fixtures": "1.0.0",
-    "in-publish": "^2.0.0",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.3",
     "tap": "~12.0.1",
-    "uglify-js": "^3.4.5"
+    "uglify-js": "^3.8.0"
   },
   "dependencies": {
-    "concat-stream": "^1.6.2",
-    "pbf": "^3.1.0",
+    "concat-stream": "^2.0.0",
+    "pbf": "^3.2.1",
     "shapefile": "~0.6.6"
   },
   "eslintConfig": {
