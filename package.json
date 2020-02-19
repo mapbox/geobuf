@@ -10,8 +10,7 @@
   },
   "scripts": {
     "pretest": "eslint *.js test/*.js",
-    "test": "tap test/*.js",
-    "cov": "tap --cov test/*.js",
+    "test": "tape test/*.js",
     "build-min": "mkdirp dist && browserify index.js -s geobuf | uglifyjs -c -m > dist/geobuf.js",
     "build-dev": "mkdirp dist && browserify index.js -d -s geobuf > dist/geobuf-dev.js",
     "build-all": "npm run build-min && npm run build-dev",
@@ -51,7 +50,7 @@
     "eslint-config-mourner": "^2.0.3",
     "geojson-fixtures": "1.0.0",
     "mkdirp": "^1.0.3",
-    "tap": "~12.0.1",
+    "tape": "^4.13.0",
     "uglify-js": "^3.8.0"
   },
   "dependencies": {
