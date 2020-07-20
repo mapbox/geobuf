@@ -69,8 +69,8 @@ npm install geobuf
 
 Browser build CDN links:
 
-- https://unpkg.com/geobuf@3.0.1/dist/geobuf.js
-- https://unpkg.com/geobuf@3.0.1/dist/geobuf-dev.js
+- https://unpkg.com/geobuf@3.0.2/dist/geobuf.js
+- https://unpkg.com/geobuf@3.0.2/dist/geobuf-dev.js
 
 Building locally:
 

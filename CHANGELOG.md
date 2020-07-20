@@ -1,5 +1,10 @@
 ## Geobuf Changelog
 
+### 3.0.2
+
+- Fixed `shp2geobuf` binary.
+- Fixed handling of `Point` features with implicitly encoded type.
+
 ### 3.0.1
 
 - Improved encoding of `null` values.
