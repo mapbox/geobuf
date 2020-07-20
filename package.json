@@ -45,13 +45,13 @@
   "homepage": "https://github.com/mapbox/geobuf",
   "devDependencies": {
     "benchmark": "~2.1.4",
-    "browserify": "^16.5.0",
-    "eslint": "^6.8.0",
+    "browserify": "^16.5.1",
+    "eslint": "^7.5.0",
     "eslint-config-mourner": "^2.0.3",
     "geojson-fixtures": "1.0.0",
-    "mkdirp": "^1.0.3",
-    "tape": "^4.13.0",
-    "uglify-js": "^3.8.0"
+    "mkdirp": "^1.0.4",
+    "tape": "^5.0.1",
+    "uglify-js": "^3.10.0"
   },
   "dependencies": {
     "concat-stream": "^2.0.0",
