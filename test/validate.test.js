@@ -82,7 +82,95 @@ test('roundtrip a circle with potential accumulating error', function (t) {
     t.end();
 });
 
+test('can compress memory', function (t) {
+    if (typeof Map === 'undefined') {
+        t.end();
+        return;
+    }
+    // Generate an invalid shape with duplicate points.
+    var feature = {
+        'type': 'MultiPolygon',
+        'coordinates': [[[]]]
+    };
+    var points = 16;
+    for (var i = 0; i <= points; i++) {
+        feature.coordinates[0][0].push([
+            Math.cos(Math.PI * 2.0 * (i % 4) / points),
+            Math.sin(Math.PI * 2.0 * (i % 4) / points)
+        ]);
+    }
+    var roundTripped = geobuf.decode(new Pbf(geobuf.encode(feature, new Pbf())));
+    var originalJSON = JSON.stringify(roundTripped);
+    var compressedFeature = geobuf.compress(roundTripped);
+    var compressedJSON = JSON.stringify(compressedFeature);
+    var c = compressedFeature.coordinates;
+    t.same(compressedJSON, originalJSON);
+    t.same(c[0][0][0], c[0][0][4], 'should be points with equivalent data');
+    t.notStrictEqual(c[0][0][0], c[0][0][4], 'should not deduplicate different array instances by default');
+    t.same(c[0][0][0], [1, 0], 'should preserve value');
+    t.end();
+});
+test('can compress memory and deduplicate points', function (t) {
+    if (typeof Map === 'undefined') {
+        t.end();
+        return;
+    }
+    // Generate an invalid shape with duplicate points.
+    var feature = {
+        'type': 'MultiPolygon',
+        'coordinates': [[[]]]
+    };
+    var points = 12;
+    for (var i = 0; i <= points; i++) {
+        feature.coordinates[0][0].push([
+            Math.cos(Math.PI * 2.0 * (i % 4) / points),
+            Math.sin(Math.PI * 2.0 * (i % 4) / points)
+        ]);
+    }
+    var roundTripped = geobuf.decode(new Pbf(geobuf.encode(feature, new Pbf())));
+    var originalJSON = JSON.stringify(roundTripped);
+    var compressedFeature = geobuf.compress(roundTripped, new Map(), new Map());
+    var compressedJSON = JSON.stringify(compressedFeature);
+    var polygon = compressedFeature.coordinates[0][0];
+    t.same(compressedJSON, originalJSON);
+    t.same(polygon[0], polygon[4], 'should be polygon with equivalent data');
+    t.strictEqual(polygon[0], polygon[4], 'should deduplicate different array instances when cache passed in');
+    t.strictEqual(polygon[0], polygon[8], 'should deduplicate different array instances when cache passed in');
+    t.same(polygon[0], [1, 0], 'should preserve value');
+    t.end();
+});
+test('compress should handle infinite numbers', function (t) {
+    var INF = 1 / 0;
+    // JSON.stringify doesn't support INF
+    var original = [[INF], [-INF], [0], [0], [INF]];
+    var compressedData = geobuf.compress(original, new Map(), new Map());
+    t.same([[INF], [-INF], [0], [0], [INF]], compressedData);
+    t.strictEqual(compressedData[2], compressedData[3]);
+    t.strictEqual(compressedData[0], compressedData[4]);
+    t.end();
+});
+test('compress should handle NaN', function (t) {
+    var original = [[0, Number.NaN], [0, Number.NaN], [0, null]];
+    var compressedData = geobuf.compress(original, new Map(), new Map());
+    t.strictEqual(compressedData[0][0], 0);
+    t.strictEqual(compressedData[0], compressedData[1]);
+    t.same(compressedData[2], [0, null]);
+    t.ok(Number.isNaN(compressedData[0][1])); // Note that NaN !== NaN
+    t.end();
+});
+test('compress should handle negative 0', function (t) {
+    var original = [[0], [0], [-0]];
+    var compressedData = geobuf.compress(original, new Map(), new Map());
+    // strictEqual uses https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
+    t.strictEqual(compressedData[0], compressedData[1]);
+    t.notStrictEqual(compressedData[0], compressedData[2]);
+    t.notStrictEqual(compressedData[0][0], compressedData[2][0]);
+    t.strictEqual(compressedData[0][0], 0);
+    t.strictEqual(compressedData[2][0], -0);
+    t.end();
+});
 function roundtripTest(geojson) {
+
     return function (t) {
         var buf = geobuf.encode(geojson, new Pbf());
         var geojson2 = geobuf.decode(new Pbf(buf));
