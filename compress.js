@@ -28,7 +28,10 @@ function isNumericArray(array) {
 function createCacheKey(array) {
     var parts = [];
     for (var i = 0; i < array.length; i++) {
-        parts.push(String(array[i]));
+        var v = array[i];
+        // String(-0) === '0'
+        var representation = v === 0 && 1 / v < 0 ? '-0' : String(v);
+        parts.push(representation);
     }
     return parts.join(',');
 }

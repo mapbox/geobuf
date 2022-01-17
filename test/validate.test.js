@@ -158,6 +158,17 @@ test('compress should handle NaN', function (t) {
     t.ok(Number.isNaN(compressedData[0][1])); // Note that NaN !== NaN
     t.end();
 });
+test('compress should handle negative 0', function (t) {
+    var original = [[0], [0], [-0]];
+    var compressedData = geobuf.compress(original, new Map(), new Map());
+    // strictEqual uses https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
+    t.strictEqual(compressedData[0], compressedData[1]);
+    t.notStrictEqual(compressedData[0], compressedData[2]);
+    t.notStrictEqual(compressedData[0][0], compressedData[2][0]);
+    t.strictEqual(compressedData[0][0], 0);
+    t.strictEqual(compressedData[2][0], -0);
+    t.end();
+});
 function roundtripTest(geojson) {
 
     return function (t) {
