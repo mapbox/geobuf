@@ -139,7 +139,27 @@ test('can compress memory and deduplicate points', function (t) {
     t.same(polygon[0], [1, 0], 'should preserve value');
     t.end();
 });
+test('compress should handle infinite numbers', function (t) {
+    var INF = 1 / 0;
+    // JSON.stringify doesn't support INF
+    var original = [[INF], [-INF], [0], [0], [INF]];
+    var compressedData = geobuf.compress(original, new Map(), new Map());
+    t.same([[INF], [-INF], [0], [0], [INF]], compressedData);
+    t.strictEqual(compressedData[2], compressedData[3]);
+    t.strictEqual(compressedData[0], compressedData[4]);
+    t.end();
+});
+test('compress should handle NaN', function (t) {
+    var original = [[0, Number.NaN], [0, Number.NaN], [0, null]];
+    var compressedData = geobuf.compress(original, new Map(), new Map());
+    t.strictEqual(compressedData[0][0], 0);
+    t.strictEqual(compressedData[0], compressedData[1]);
+    t.same(compressedData[2], [0, null]);
+    t.ok(Number.isNaN(compressedData[0][1])); // Note that NaN !== NaN
+    t.end();
+});
 function roundtripTest(geojson) {
+
     return function (t) {
         var buf = geobuf.encode(geojson, new Pbf());
         var geojson2 = geobuf.decode(new Pbf(buf));

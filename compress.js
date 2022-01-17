@@ -11,13 +11,26 @@ if (typeof Map == 'undefined' || !Object.entries) {
  * @param {array} value
  * @returns {Boolean} is this an array where all fields are numbers (including the empty array).
  */
-function isNumericArray(value) {
-    for (var i = 0; i < value.length; i++) {
-        if (typeof (value[i]) !== 'number') {
+function isNumericArray(array) {
+    for (var i = 0; i < array.length; i++) {
+        var v = array[i];
+        if (typeof (v) !== 'number') {
             return false;
         }
     }
     return true;
+}
+
+/**
+ * @param {string[]} array, possibly including Infinity/NaN
+ * @return {string} cache key identifying an array with those numbers.
+ */
+function createCacheKey(array) {
+    var parts = [];
+    for (var i = 0; i < array.length; i++) {
+        parts.push(String(array[i]));
+    }
+    return parts.join(',');
 }
 
 /**
@@ -55,7 +68,7 @@ function compress(value, cache = new Map(), numericArrayCache = null) {
         // and experimentally appears to reduce capacity used.
         var result = value.slice();
         if (numericArrayCache && isNumericArray(result)) {
-            var cacheKey = JSON.stringify(result);
+            var cacheKey = createCacheKey(result);
             var cachedEntry = numericArrayCache.get(cacheKey);
             if (cachedEntry) {
                 cache.set(value, cachedEntry);
