@@ -82,6 +82,63 @@ test('roundtrip a circle with potential accumulating error', function (t) {
     t.end();
 });
 
+test('can compress memory', function (t) {
+    if (typeof Map === 'undefined') {
+        t.end();
+        return;
+    }
+    // Generate an invalid shape with duplicate points.
+    var feature = {
+        'type': 'MultiPolygon',
+        'coordinates': [[[]]]
+    };
+    var points = 16;
+    for (var i = 0; i <= points; i++) {
+        feature.coordinates[0][0].push([
+            Math.cos(Math.PI * 2.0 * (i % 4) / points),
+            Math.sin(Math.PI * 2.0 * (i % 4) / points)
+        ]);
+    }
+    var roundTripped = geobuf.decode(new Pbf(geobuf.encode(feature, new Pbf())));
+    var originalJSON = JSON.stringify(roundTripped);
+    var compressedFeature = geobuf.compress(roundTripped);
+    var compressedJSON = JSON.stringify(compressedFeature);
+    var c = compressedFeature.coordinates;
+    t.same(compressedJSON, originalJSON);
+    t.same(c[0][0][0], c[0][0][4], 'should be points with equivalent data');
+    t.notStrictEqual(c[0][0][0], c[0][0][4], 'should not deduplicate different array instances by default');
+    t.same(c[0][0][0], [1, 0], 'should preserve value');
+    t.end();
+});
+test('can compress memory and deduplicate points', function (t) {
+    if (typeof Map === 'undefined') {
+        t.end();
+        return;
+    }
+    // Generate an invalid shape with duplicate points.
+    var feature = {
+        'type': 'MultiPolygon',
+        'coordinates': [[[]]]
+    };
+    var points = 12;
+    for (var i = 0; i <= points; i++) {
+        feature.coordinates[0][0].push([
+            Math.cos(Math.PI * 2.0 * (i % 4) / points),
+            Math.sin(Math.PI * 2.0 * (i % 4) / points)
+        ]);
+    }
+    var roundTripped = geobuf.decode(new Pbf(geobuf.encode(feature, new Pbf())));
+    var originalJSON = JSON.stringify(roundTripped);
+    var compressedFeature = geobuf.compress(roundTripped, new Map(), new Map());
+    var compressedJSON = JSON.stringify(compressedFeature);
+    var polygon = compressedFeature.coordinates[0][0];
+    t.same(compressedJSON, originalJSON);
+    t.same(polygon[0], polygon[4], 'should be polygon with equivalent data');
+    t.strictEqual(polygon[0], polygon[4], 'should deduplicate different array instances when cache passed in');
+    t.strictEqual(polygon[0], polygon[8], 'should deduplicate different array instances when cache passed in');
+    t.same(polygon[0], [1, 0], 'should preserve value');
+    t.end();
+});
 function roundtripTest(geojson) {
     return function (t) {
         var buf = geobuf.encode(geojson, new Pbf());

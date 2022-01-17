@@ -59,6 +59,28 @@ var geojson = geobuf.decode(new Pbf(data));
 Given a [Pbf](https://github.com/mapbox/pbf) object with Geobuf data, return a GeoJSON object. When loading Geobuf data over `XMLHttpRequest`, you need to set `responseType` to [`arraybuffer`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType).
 
 
+### compress
+
+```js
+var geojson = geobuf.compress(geobuf.decode(new Pbf(data)));
+```
+
+Given a GeoJSON object (or array of GeoJSON objects), returns an equivalent object with lower memory usage (avoid wasting memory usage on excess array capacity).
+This may be useful if GeoJSON objects are kept around for a long time after creating them.
+
+```js
+// To additionally deduplicate identical arrays
+// (may be unsafe if the geodata points are modified by callers)
+var geojson = geobuf.compress(geobuf.decode(new Pbf(data)), new Map(), new Map());
+// To reuse caches when deduplicating multiple geobuf objects:
+// (may be unsafe if the geodata points are modified by callers)
+var cache = new Map();
+var numericArrayCache = new Map();
+var geojson = geobuf.compress(geobuf.decode(new Pbf(data)), cache, numericArrayCache);
+```
+
+When `Map` is unavailable, this returns the original object without attempting to compress.
+
 ## Install
 
 Node and Browserify:
