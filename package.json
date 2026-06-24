@@ -1,6 +1,6 @@
 {
   "name": "geobuf",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Compact binary encoding for geographic data",
   "type": "module",
   "main": "index.js",
@@ -52,5 +52,8 @@
   "dependencies": {
     "pbf": "^4.0.1",
     "shapefile": "~0.6.6"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
